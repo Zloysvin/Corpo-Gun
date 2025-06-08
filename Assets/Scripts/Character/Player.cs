@@ -50,4 +50,9 @@ public class Player : MonoBehaviour
         playerCamera.UpdatePosition(playerCharacter.GetCameraTarget());
     }
 
+    void Teleport(Vector3 position)
+    {
+        playerCharacter.SetPosition(position);
+    }
+
 }

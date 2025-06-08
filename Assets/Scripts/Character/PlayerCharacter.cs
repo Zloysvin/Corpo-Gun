@@ -136,8 +136,22 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
                 var targetPlanarVelocity = currentPlanarVelocity + movementForce;
                 targetPlanarVelocity = Vector3.ClampMagnitude(targetPlanarVelocity, airSpeed);
+                movementForce = targetPlanarVelocity - currentPlanarVelocity;
 
-                currentVelocity += targetPlanarVelocity - currentPlanarVelocity;
+                // ------------------- EXPERIMENTAL ------------------- //
+                // Attempting to make jumping near steep slopes more stable
+                if (motor.GroundingStatus.IsStableOnGround)
+                {
+                    if (Vector3.Dot(movementForce, currentVelocity + movementForce) > 0f)
+                    {
+                        var obstructionNormal = Vector3.Cross(motor.CharacterUp, Vector3.Cross(motor.CharacterUp, motor.GroundingStatus.GroundNormal)).normalized;
+                        movementForce = Vector3.ProjectOnPlane(movementForce, obstructionNormal);
+                    }
+                }
+                // currentVelocity += targetPlanarVelocity - currentPlanarVelocity;
+                // ---------------------------------------------------- //
+
+                currentVelocity += movementForce;
             }
 
             // Hold action results in larger jumps
@@ -149,24 +163,38 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             {
                 effectiveGravity *= jumpSustainGravity;
             }
+
             currentVelocity += deltaTime * effectiveGravity * motor.CharacterUp;
         }
 
         if (_requestedJump)
         {
-            _requestedJump = false;
+            if (_stance is Stance.Crouch)
+            {
+                _requestedJump = false;
+                _requestedCrouch = false;
+            }
+            else if (motor.GroundingStatus.IsStableOnGround)
+            {
+                _requestedJump = false;
 
-            // Unstick player off ground
-            motor.ForceUnground(time: 0f);
+                // Unstick player off ground
+                motor.ForceUnground(time: 0f);
 
-            // Get your current vertical speed based on your current "up" direction (allows for diagonal)
-            // Don't slow down if you are already moving up at the same speed
-            // Of course we can always limit when you can jump and prevent double jumping etc. it shouldn't be an issue
-            var currentVerticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
-            var targetVerticalSpeed = Mathf.Max(currentVerticalSpeed, jumpSpeed);
+                // Get your current vertical speed based on your current "up" direction (allows for diagonal)
+                // Don't slow down if you are already moving up at the same speed
+                // Of course we can always limit when you can jump and prevent double jumping etc. it shouldn't be an issue
+                var currentVerticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
+                var targetVerticalSpeed = Mathf.Max(currentVerticalSpeed, jumpSpeed);
 
-            // Add enough vertical speed to reach the target vertical speed
-            currentVelocity += motor.CharacterUp * (targetVerticalSpeed - currentVerticalSpeed);
+                // Add enough vertical speed to reach the target vertical speed
+                currentVelocity += motor.CharacterUp * (targetVerticalSpeed - currentVerticalSpeed);
+            }
+            else
+            {
+                _requestedJump = false;
+            }
+
         }
 
     }
@@ -224,4 +252,14 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     public void ProcessHitStabilityReport(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, Vector3 atCharacterPosition, Quaternion atCharacterRotation, ref HitStabilityReport hitStabilityReport) { }
 
     public Transform GetCameraTarget() => cameraTarget;
+
+    public void SetPosition(Vector3 position, bool killVelocity = true)
+    {
+        motor.SetPosition(position);
+
+        if (killVelocity)
+        {
+            motor.BaseVelocity = Vector3.zero;
+        }
+    }
 }
