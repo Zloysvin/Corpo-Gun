@@ -1,4 +1,5 @@
 using KinematicCharacterController;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum CrouchInput 
@@ -16,14 +17,21 @@ public struct CharacterInput
     public Quaternion Rotation;
     public Vector2 Move;
     public bool Jump;
+    public bool JumpSustain;
     public CrouchInput Crouch;
 }
 
 public class PlayerCharacter : MonoBehaviour, ICharacterController
 {
+    // Override settings
+    [Header("Character Settings")]
+    [SerializeField] private bool allowHoldJump = true;
+
+    [Header("Character Components")]
     [SerializeField] private KinematicCharacterMotor motor;
     [SerializeField] private Transform cameraTarget;
 
+    [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 20f;
     [SerializeField] private float crouchSpeed = 7f;
     [SerializeField] private float walkResponse = 25f;
@@ -31,7 +39,13 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
     [Space]
 
+    [SerializeField] private float airSpeed = 15f;
+    [SerializeField] private float airAcceleration = 15f;
+
+    [Space]
+
     [SerializeField] private float jumpSpeed = 20f;
+    [Range(0f, 1f)][SerializeField] private float jumpSustainGravity = 0.4f;
     [SerializeField] private float gravity = -90f;
     [SerializeField] private float standHeight = 2f;
     [SerializeField] private float crouchHeight = 1f;
@@ -48,6 +62,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     private Vector3 _requestedMovement;
     private bool _requestedJump;
     private bool _requestedCrouch;
+    private bool _requestedJumpSustain;
 
     private Collider[] _uncrouchOverlapResults;
 
@@ -70,6 +85,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         _requestedMovement = input.Rotation * _requestedMovement;
 
         _requestedJump = _requestedJump || input.Jump;
+        _requestedJumpSustain = input.JumpSustain;
         _requestedCrouch = input.Crouch switch
         {
             CrouchInput.Toggle => !_requestedCrouch,
@@ -110,7 +126,30 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         }
         else
         {
-            currentVelocity += deltaTime * gravity * motor.CharacterUp;
+            if (_requestedMovement.sqrMagnitude > 0f)
+            {
+                // Calculate air movement based on the requested movement same as regular movement but using the Up
+                var planarMovement = Vector3.ProjectOnPlane(_requestedMovement, motor.CharacterUp) * _requestedMovement.magnitude;
+                var currentPlanarVelocity = Vector3.ProjectOnPlane(currentVelocity, motor.CharacterUp);
+
+                var movementForce = planarMovement * airAcceleration * deltaTime;
+
+                var targetPlanarVelocity = currentPlanarVelocity + movementForce;
+                targetPlanarVelocity = Vector3.ClampMagnitude(targetPlanarVelocity, airSpeed);
+
+                currentVelocity += targetPlanarVelocity - currentPlanarVelocity;
+            }
+
+            // Hold action results in larger jumps
+            // Only edit gravity if the vertical speed is moving up
+            // Otherwise fall at normal gravity
+            var effectiveGravity = gravity;
+            var verticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
+            if(allowHoldJump && _requestedJumpSustain && verticalSpeed > 0f)
+            {
+                effectiveGravity *= jumpSustainGravity;
+            }
+            currentVelocity += deltaTime * effectiveGravity * motor.CharacterUp;
         }
 
         if (_requestedJump)

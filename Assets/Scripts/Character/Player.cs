@@ -33,10 +33,11 @@ public class Player : MonoBehaviour
 
         var characterInput = new CharacterInput 
         { 
-            Rotation = playerCamera.transform.rotation,
-            Move = input.Move.ReadValue<Vector2>(),
-            Jump = input.Jump.WasPressedThisFrame(),
-            Crouch = input.Crouch.WasPressedThisFrame() ? CrouchInput.Toggle : CrouchInput.None
+            Rotation    = playerCamera.transform.rotation,
+            Move        = input.Move.ReadValue<Vector2>(),
+            Jump        = input.Jump.WasPressedThisFrame(),
+            JumpSustain = input.Jump.IsPressed(),
+            Crouch      = input.Crouch.WasPressedThisFrame() ? CrouchInput.Toggle : CrouchInput.None
         };
 
         playerCharacter.UpdateInput(characterInput);
