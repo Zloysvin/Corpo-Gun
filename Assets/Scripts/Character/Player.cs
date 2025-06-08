@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private PlayerCharacter _playerCharacter;
-    [SerializeField] private PlayerCamera _playerCamera;
+    [SerializeField] private PlayerCharacter playerCharacter;
+    [SerializeField] private PlayerCamera playerCamera;
 
     private PlayerInputActions _inputActions;
 
@@ -14,8 +14,8 @@ public class Player : MonoBehaviour
         _inputActions = new PlayerInputActions();
         _inputActions.Enable();
 
-        _playerCharacter.Initialize();
-        _playerCamera.Initialize(_playerCharacter.GetCameraTarget());
+        playerCharacter.Initialize();
+        playerCamera.Initialize(playerCharacter.GetCameraTarget());
     }
 
     void OnDestroy()
@@ -26,22 +26,27 @@ public class Player : MonoBehaviour
     void Update()
     {
         var input = _inputActions.Gameplay;
+        var deltaTime = Time.deltaTime;
 
         var cameraInput = new CameraInput { Look = input.Look.ReadValue<Vector2>() };
-        _playerCamera.UpdateRotation(cameraInput);
+        playerCamera.UpdateRotation(cameraInput);
 
         var characterInput = new CharacterInput 
         { 
-            Rotation = _playerCamera.transform.rotation,
+            Rotation = playerCamera.transform.rotation,
             Move = input.Move.ReadValue<Vector2>(),
-            Jump = input.Jump.WasPressedThisFrame()
+            Jump = input.Jump.WasPressedThisFrame(),
+            Crouch = input.Crouch.WasPressedThisFrame() ? CrouchInput.Toggle : CrouchInput.None
         };
-        _playerCharacter.UpdateInput(characterInput);
+
+        playerCharacter.UpdateInput(characterInput);
+        playerCharacter.UpdateBody(deltaTime);
+
     }
 
     void LateUpdate()
     {
-        _playerCamera.UpdatePosition(_playerCharacter.GetCameraTarget());
+        playerCamera.UpdatePosition(playerCharacter.GetCameraTarget());
     }
 
 }

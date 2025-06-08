@@ -296,8 +296,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfe7adfc9976814191b8a0746d11d33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerCharacter: {fileID: 1605722931}
-  _playerCamera: {fileID: 447417210}
+  playerCharacter: {fileID: 1605722931}
+  playerCamera: {fileID: 447417210}
 --- !u!1 &46997297
 GameObject:
   m_ObjectHideFlags: 0
@@ -1328,8 +1328,13 @@ MonoBehaviour:
   motor: {fileID: 1605722932}
   cameraTarget: {fileID: 278353466}
   walkSpeed: 10
+  crouchSpeed: 7
   jumpSpeed: 20
   gravity: -90
+  standHeight: 2
+  crouchHeight: 1
+  standCameraTargetHeight: 0.9
+  crouchCameraTargetHeight: 0.7
 --- !u!114 &1605722932
 MonoBehaviour:
   m_ObjectHideFlags: 0
