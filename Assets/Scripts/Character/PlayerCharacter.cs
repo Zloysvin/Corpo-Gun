@@ -1,5 +1,4 @@
 using KinematicCharacterController;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum CrouchInput 
@@ -26,6 +25,12 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     // Override settings
     [Header("Character Settings")]
     [SerializeField] private bool allowHoldJump = true;
+    [SerializeField] private bool allowCrouch = true;
+    [Tooltip("Allows you to queue a jump before you hit the ground transitioning quickly into the next jump (like b-hopping).")]
+    [SerializeField] private bool allowCoyoteBefore = true;
+    [Tooltip("Allows a split second jump after you leave the ground. Useful for platformers")]
+    [SerializeField] private bool allowCoyoteAfter = true;
+
 
     [Header("Character Components")]
     [SerializeField] private KinematicCharacterMotor motor;
@@ -39,20 +44,19 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
     [Space]
 
+    [SerializeField] private float coyoteTimeBefore = 0.2f;
+    [SerializeField] private float coyoteTimeAfter = 0.2f;
     [SerializeField] private float airSpeed = 15f;
     [SerializeField] private float airAcceleration = 15f;
-
-    [Space]
-
     [SerializeField] private float jumpSpeed = 20f;
     [Range(0f, 1f)][SerializeField] private float jumpSustainGravity = 0.4f;
     [SerializeField] private float gravity = -90f;
-    [SerializeField] private float standHeight = 2f;
-    [SerializeField] private float crouchHeight = 1f;
-    [SerializeField] private float crouchHeightResponse = 15f;
 
     [Space]
 
+    [SerializeField] private float standHeight = 2f;
+    [SerializeField] private float crouchHeight = 1f;
+    [SerializeField] private float crouchHeightResponse = 15f;
     [Range(0f, 1f)][SerializeField] private float standCameraTargetHeight = 0.9f;
     [Range(0f, 1f)][SerializeField] private float crouchCameraTargetHeight = 0.7f;
 
@@ -65,6 +69,10 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     private bool _requestedJumpSustain;
 
     private Collider[] _uncrouchOverlapResults;
+
+    private float _timeSinceUngrounded;
+    private float _timeSinceJumpRequest;
+    private bool _ungroundedDueToJump;
 
     public void Initialize()
     {
@@ -84,9 +92,15 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         // Oreint movement to look direction
         _requestedMovement = input.Rotation * _requestedMovement;
 
+        var wasRequestingJump = _requestedJump;
         _requestedJump = _requestedJump || input.Jump;
-        _requestedJumpSustain = input.JumpSustain;
-        _requestedCrouch = input.Crouch switch
+        if (_requestedJump && !wasRequestingJump)
+        {
+            _timeSinceJumpRequest = 0f;
+        }
+
+        _requestedJumpSustain = allowHoldJump && input.JumpSustain;
+        _requestedCrouch = allowCrouch && input.Crouch switch
         {
             CrouchInput.Toggle => !_requestedCrouch,
             CrouchInput.None => _requestedCrouch,
@@ -110,6 +124,9 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     {
         if (motor.GroundingStatus.IsStableOnGround)
         {
+            _timeSinceUngrounded = 0f;
+            _ungroundedDueToJump = false;
+
             var groundedMovement = motor.GetDirectionTangentToSurface(_requestedMovement, motor.GroundingStatus.GroundNormal) * _requestedMovement.magnitude;
 
             // Calculate speed and response based on Stance
@@ -126,6 +143,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         }
         else
         {
+            _timeSinceUngrounded += deltaTime;
+
             if (_requestedMovement.sqrMagnitude > 0f)
             {
                 // Calculate air movement based on the requested movement same as regular movement but using the Up
@@ -159,7 +178,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             // Otherwise fall at normal gravity
             var effectiveGravity = gravity;
             var verticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
-            if(allowHoldJump && _requestedJumpSustain && verticalSpeed > 0f)
+            if(_requestedJumpSustain && verticalSpeed > 0f)
             {
                 effectiveGravity *= jumpSustainGravity;
             }
@@ -169,17 +188,21 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
         if (_requestedJump)
         {
+            var grounded = motor.GroundingStatus.IsStableOnGround;
+            var canCoyoteJump = _timeSinceUngrounded < coyoteTimeAfter && allowCoyoteAfter && !_ungroundedDueToJump;
+
             if (_stance is Stance.Crouch)
             {
                 _requestedJump = false;
                 _requestedCrouch = false;
             }
-            else if (motor.GroundingStatus.IsStableOnGround)
+            else if (grounded || canCoyoteJump)
             {
                 _requestedJump = false;
 
                 // Unstick player off ground
                 motor.ForceUnground(time: 0f);
+                _ungroundedDueToJump = true;
 
                 // Get your current vertical speed based on your current "up" direction (allows for diagonal)
                 // Don't slow down if you are already moving up at the same speed
@@ -192,11 +215,11 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             }
             else
             {
-                _requestedJump = false;
+                // Defer the jump request, jump can occur early or late
+                _timeSinceJumpRequest += deltaTime;
+                _requestedJump = allowCoyoteBefore && _timeSinceJumpRequest < coyoteTimeBefore;
             }
-
         }
-
     }
 
     public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
