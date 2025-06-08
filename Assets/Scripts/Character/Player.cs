@@ -33,7 +33,8 @@ public class Player : MonoBehaviour
         var characterInput = new CharacterInput 
         { 
             Rotation = _playerCamera.transform.rotation,
-            Move = input.Move.ReadValue<Vector2>()
+            Move = input.Move.ReadValue<Vector2>(),
+            Jump = input.Jump.WasPressedThisFrame()
         };
         _playerCharacter.UpdateInput(characterInput);
     }

@@ -5,6 +5,7 @@ public struct CharacterInput
 {
     public Quaternion Rotation;
     public Vector2 Move;
+    public bool Jump;
 }
 
 public class PlayerCharacter : MonoBehaviour, ICharacterController
@@ -12,9 +13,12 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     [SerializeField] private KinematicCharacterMotor motor;
     [SerializeField] private Transform cameraTarget;
     [SerializeField] private float walkSpeed = 20f;
+    [SerializeField] private float jumpSpeed = 20f;
+    [SerializeField] private float gravity = -90f;
 
     private Quaternion _requestedRotation;
     private Vector3 _requestedMovement;
+    private bool _requestedJump;
 
     public void Initialize()
     {
@@ -32,13 +36,40 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
         // Oreint movement to look direction
         _requestedMovement = input.Rotation * _requestedMovement;
+
+        _requestedJump = _requestedJump || input.Jump;
     }
 
     public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
     {
-        var groundedMovement = motor.GetDirectionTangentToSurface(_requestedMovement, motor.GroundingStatus.GroundNormal) * _requestedMovement.magnitude; 
+        if (motor.GroundingStatus.IsStableOnGround)
+        {
+            var groundedMovement = motor.GetDirectionTangentToSurface(_requestedMovement, motor.GroundingStatus.GroundNormal) * _requestedMovement.magnitude;
 
-        currentVelocity = groundedMovement * walkSpeed;
+            currentVelocity = groundedMovement * walkSpeed;
+        }
+        else
+        {
+            currentVelocity += deltaTime * gravity * motor.CharacterUp;
+        }
+
+        if (_requestedJump)
+        {
+            _requestedJump = false;
+
+            // Unstick player off ground
+            motor.ForceUnground(time: 0f);
+
+            // Get your current vertical speed based on your current "up" direction (allows for diagonal)
+            // Don't slow down if you are already moving up at the same speed
+            // Of course we can always limit when you can jump and prevent double jumping etc. it shouldn't be an issue
+            var currentVerticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
+            var targetVerticalSpeed = Mathf.Max(currentVerticalSpeed, jumpSpeed);
+
+            // Add enough vertical speed to reach the target vertical speed
+            currentVelocity += motor.CharacterUp * (targetVerticalSpeed - currentVerticalSpeed);
+        }
+
     }
 
     public void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
