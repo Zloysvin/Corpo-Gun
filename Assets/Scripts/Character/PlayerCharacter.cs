@@ -56,17 +56,17 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
     [SerializeField] private float coyoteTimeBefore = 0.2f;
     [SerializeField] private float coyoteTimeAfter = 0.2f;
-    [SerializeField] private float airSpeed = 15f;
-    [SerializeField] private float airAcceleration = 15f;
-    [SerializeField] private float jumpSpeed = 15f;
+    [SerializeField] private float airSpeed = 6.5f;
+    [SerializeField] private float airAcceleration = 6.5f;
+    [SerializeField] private float jumpSpeed = 11f;
     [Range(0f, 1f)][SerializeField] private float jumpSustainGravity = 0.6f;
-    [SerializeField] private float gravity = -90f;
+    [SerializeField] private float gravity = -50f;
 
     [Space]
 
     [SerializeField] private float standHeight = 2f;
     [SerializeField] private float crouchHeight = 1.2f;
-    [SerializeField] private float crouchHeightResponse = 15f;
+    [SerializeField] private float crouchHeightResponse = 4f;
     [Range(0f, 1f)][SerializeField] private float standCameraTargetHeight = 0.9f;
     [Range(0f, 1f)][SerializeField] private float crouchCameraTargetHeight = 0.7f;
 
