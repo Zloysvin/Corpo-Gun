@@ -11,6 +11,16 @@ public enum Stance
     Stand, Crouch
 }
 
+public struct CharacterState
+{
+    public Stance Stance;
+    public bool Grounded;
+    public Vector3 Velocity;
+    // Not raw acceleration, excludes gravity and other forces
+    // User movement driven acceleration
+    public Vector3 Acceleration;
+}
+
 public struct CharacterInput
 {
     public Quaternion Rotation;
@@ -37,8 +47,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     [SerializeField] private Transform cameraTarget;
 
     [Header("Movement Settings")]
-    [SerializeField] private float walkSpeed = 20f;
-    [SerializeField] private float crouchSpeed = 7f;
+    [SerializeField] private float walkSpeed = 6.5f;
+    [SerializeField] private float crouchSpeed = 3f;
     [SerializeField] private float walkResponse = 25f;
     [SerializeField] private float crouchResponse = 20f;
 
@@ -48,19 +58,21 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     [SerializeField] private float coyoteTimeAfter = 0.2f;
     [SerializeField] private float airSpeed = 15f;
     [SerializeField] private float airAcceleration = 15f;
-    [SerializeField] private float jumpSpeed = 20f;
-    [Range(0f, 1f)][SerializeField] private float jumpSustainGravity = 0.4f;
+    [SerializeField] private float jumpSpeed = 15f;
+    [Range(0f, 1f)][SerializeField] private float jumpSustainGravity = 0.6f;
     [SerializeField] private float gravity = -90f;
 
     [Space]
 
     [SerializeField] private float standHeight = 2f;
-    [SerializeField] private float crouchHeight = 1f;
+    [SerializeField] private float crouchHeight = 1.2f;
     [SerializeField] private float crouchHeightResponse = 15f;
     [Range(0f, 1f)][SerializeField] private float standCameraTargetHeight = 0.9f;
     [Range(0f, 1f)][SerializeField] private float crouchCameraTargetHeight = 0.7f;
 
-    private Stance _stance;
+    private CharacterState _state;
+    private CharacterState _lastState;
+    private CharacterState _tempState;
 
     private Quaternion _requestedRotation;
     private Vector3 _requestedMovement;
@@ -76,13 +88,17 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
     public void Initialize()
     {
-        _stance = Stance.Stand;
+        _state.Stance = Stance.Stand;
+        _lastState = _state;
+
         _uncrouchOverlapResults = new Collider[8];
         motor.CharacterController = this;
     }
 
     public void UpdateInput(CharacterInput input)
     {
+        _lastState = _state;
+
         _requestedRotation = input.Rotation;
 
         // Convert to 3D space and clamp to prevent diagonal movement speed increase
@@ -111,7 +127,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     public void UpdateBody(float deltaTime)
     {
         var currentHeight = motor.Capsule.height;
-        var cameraTargetHeight = currentHeight * (_stance == Stance.Stand ? standCameraTargetHeight : crouchCameraTargetHeight);
+        var cameraTargetHeight = currentHeight * (_state.Stance == Stance.Stand ? standCameraTargetHeight : crouchCameraTargetHeight);
 
         cameraTarget.localPosition = Vector3.Lerp(
             a: cameraTarget.localPosition,
@@ -122,6 +138,9 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
     public void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
     {
+        _state.Acceleration = Vector3.zero;
+
+        // Grounded movement
         if (motor.GroundingStatus.IsStableOnGround)
         {
             _timeSinceUngrounded = 0f;
@@ -130,17 +149,21 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             var groundedMovement = motor.GetDirectionTangentToSurface(_requestedMovement, motor.GroundingStatus.GroundNormal) * _requestedMovement.magnitude;
 
             // Calculate speed and response based on Stance
-            var speed = _stance is Stance.Stand ? walkSpeed : crouchSpeed;
-            var response = _stance is Stance.Stand ? walkResponse : crouchResponse;
+            var speed = _state.Stance is Stance.Stand ? walkSpeed : crouchSpeed;
+            var response = _state.Stance is Stance.Stand ? walkResponse : crouchResponse;
 
             // Apply response to the current velocity
             var targetVelocity = groundedMovement * speed;
-            currentVelocity = Vector3.Lerp(
+            var moveVelocity = Vector3.Lerp(
                 a: currentVelocity,
                 b: targetVelocity,
                 t: 1f - Mathf.Exp(-response * deltaTime) // Remain framerate independent
             );
+
+            _state.Acceleration = (moveVelocity - currentVelocity) / deltaTime;
+            currentVelocity = moveVelocity;
         }
+        // Air movement
         else
         {
             _timeSinceUngrounded += deltaTime;
@@ -178,7 +201,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             // Otherwise fall at normal gravity
             var effectiveGravity = gravity;
             var verticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
-            if(_requestedJumpSustain && verticalSpeed > 0f)
+            if (_requestedJumpSustain && verticalSpeed > 0f)
             {
                 effectiveGravity *= jumpSustainGravity;
             }
@@ -191,7 +214,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             var grounded = motor.GroundingStatus.IsStableOnGround;
             var canCoyoteJump = _timeSinceUngrounded < coyoteTimeAfter && allowCoyoteAfter && !_ungroundedDueToJump;
 
-            if (_stance is Stance.Crouch)
+            if (_state.Stance is Stance.Crouch)
             {
                 _requestedJump = false;
                 _requestedCrouch = false;
@@ -233,19 +256,21 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             currentRotation = Quaternion.LookRotation(forward, motor.CharacterUp);
         }
     }
-    
+
     public void BeforeCharacterUpdate(float deltaTime)
     {
-        if(_requestedCrouch && _stance is Stance.Stand)
+        if (_requestedCrouch && _state.Stance is Stance.Stand)
         {
-            _stance = Stance.Crouch;
+            _state.Stance = Stance.Crouch;
             motor.SetCapsuleDimensions(motor.Capsule.radius, crouchHeight, crouchHeight * 0.5f);
         }
+
+        _tempState = _state;
     }
 
     public void AfterCharacterUpdate(float deltaTime)
     {
-        if (!_requestedCrouch && _stance is not Stance.Stand)
+        if (!_requestedCrouch && _state.Stance is not Stance.Stand)
         {
             motor.SetCapsuleDimensions(motor.Capsule.radius, standHeight, standHeight * 0.5f);
 
@@ -256,9 +281,14 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             }
             else
             {
-                _stance = Stance.Stand;
+                _state.Stance = Stance.Stand;
             }
         }
+
+        _state.Grounded = motor.GroundingStatus.IsStableOnGround;
+        _state.Velocity = motor.Velocity;
+
+        _lastState = _tempState;
     }
 
 
@@ -275,6 +305,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     public void ProcessHitStabilityReport(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint, Vector3 atCharacterPosition, Quaternion atCharacterRotation, ref HitStabilityReport hitStabilityReport) { }
 
     public Transform GetCameraTarget() => cameraTarget;
+    public CharacterState GetState() => _state;
+    public CharacterState GetLastState() => _lastState;
 
     public void SetPosition(Vector3 position, bool killVelocity = true)
     {
@@ -285,4 +317,5 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             motor.BaseVelocity = Vector3.zero;
         }
     }
+
 }
