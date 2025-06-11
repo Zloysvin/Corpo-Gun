@@ -1,14 +1,22 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 public class Player : MonoBehaviour
 {
+    [Header("Components")]
     [SerializeField] private PlayerCharacter playerCharacter;
     [SerializeField] private PlayerCamera playerCamera;
     [SerializeField] private CameraSpring cameraSpring;
     [SerializeField] private CameraLean cameraLean;
     [SerializeField] private StanceVignette stanceVignette;
     [SerializeField] private Volume volume;
+
+    // Probably rework where this should go
+    [Header("Input Settings")]
+    [SerializeField] private bool toggleSprint = false;
+    [SerializeField] private bool toggleCrouch = false;
+
 
     private PlayerInputActions _inputActions;
 
@@ -40,13 +48,14 @@ public class Player : MonoBehaviour
         var cameraInput = new CameraInput { Look = input.Look.ReadValue<Vector2>() };
         playerCamera.UpdateRotation(cameraInput);
 
-        var characterInput = new CharacterInput 
-        { 
+        var characterInput = new CharacterInput
+        {
             Rotation    = playerCamera.transform.rotation,
             Move        = input.Move.ReadValue<Vector2>(),
             Jump        = input.Jump.WasPressedThisFrame(),
             JumpSustain = input.Jump.IsPressed(),
-            Crouch      = input.Crouch.WasPressedThisFrame() ? CrouchInput.Toggle : CrouchInput.None
+            Crouch      = toggleCrouch ? input.Crouch.WasPressedThisFrame() ? InputType.ToggleOn : InputType.ToggleOff : input.Crouch.IsPressed() ? InputType.Held : InputType.Off,
+            Sprint      = toggleSprint ? input.Sprint.WasPressedThisFrame() ? InputType.ToggleOn : InputType.ToggleOff : input.Sprint.IsPressed() ? InputType.Held : InputType.Off
         };
 
         playerCharacter.UpdateInput(characterInput);

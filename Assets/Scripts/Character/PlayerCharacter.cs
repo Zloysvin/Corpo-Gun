@@ -1,9 +1,9 @@
 using KinematicCharacterController;
 using UnityEngine;
 
-public enum CrouchInput 
+public enum InputType
 {
-    None, Hold, Toggle
+    ToggleOn, ToggleOff, Held, Off
 }
 
 public enum Stance
@@ -27,7 +27,8 @@ public struct CharacterInput
     public Vector2 Move;
     public bool Jump;
     public bool JumpSustain;
-    public CrouchInput Crouch;
+    public InputType Crouch;
+    public InputType Sprint;
 }
 
 public class PlayerCharacter : MonoBehaviour, ICharacterController
@@ -48,6 +49,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 6.5f;
+    [SerializeField] private float sprintSpeed = 9f;
     [SerializeField] private float crouchSpeed = 3f;
     [SerializeField] private float walkResponse = 25f;
     [SerializeField] private float crouchResponse = 20f;
@@ -79,6 +81,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     private bool _requestedJump;
     private bool _requestedCrouch;
     private bool _requestedJumpSustain;
+    private bool _requestedSprint;
 
     private Collider[] _uncrouchOverlapResults;
 
@@ -118,9 +121,20 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         _requestedJumpSustain = allowHoldJump && input.JumpSustain;
         _requestedCrouch = allowCrouch && input.Crouch switch
         {
-            CrouchInput.Toggle => !_requestedCrouch,
-            CrouchInput.None => _requestedCrouch,
+            InputType.ToggleOn => !_requestedCrouch,
+            InputType.ToggleOff => _requestedCrouch,
+            InputType.Held => true,
+            InputType.Off => false,
             _ => _requestedCrouch
+        };
+
+        _requestedSprint = input.Sprint switch
+        {
+            InputType.ToggleOn => !_requestedSprint,
+            InputType.ToggleOff => _requestedSprint,
+            InputType.Held => true,
+            InputType.Off => false,
+            _ => _requestedSprint
         };
     }
 
@@ -149,7 +163,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             var groundedMovement = motor.GetDirectionTangentToSurface(_requestedMovement, motor.GroundingStatus.GroundNormal) * _requestedMovement.magnitude;
 
             // Calculate speed and response based on Stance
-            var speed = _state.Stance is Stance.Stand ? walkSpeed : crouchSpeed;
+            var speed = _state.Stance is Stance.Stand ? _requestedSprint ? sprintSpeed : walkSpeed : crouchSpeed;
             var response = _state.Stance is Stance.Stand ? walkResponse : crouchResponse;
 
             // Apply response to the current velocity

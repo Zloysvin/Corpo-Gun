@@ -1408,8 +1408,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   min: 0.1
-  max: 0.35
-  responseTime: 20
+  max: 0.4
+  responseTime: 4
 --- !u!1 &1580455223
 GameObject:
   m_ObjectHideFlags: 0
