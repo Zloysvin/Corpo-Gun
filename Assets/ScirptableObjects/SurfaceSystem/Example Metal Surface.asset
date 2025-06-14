@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7da796a09016c2a4482d7394289be9d4, type: 3}
+  m_Name: Example Metal Surface
+  m_EditorClassIdentifier: 
+  impactTypeEffects:
+  - impactType: {fileID: 11400000, guid: ba9e87ee9270d634f9610b4ad8371741, type: 2}
+    effects:
+    - {fileID: 11400000, guid: d45ef3371ae71db439db778d26aaeb71, type: 2}
+    - {fileID: 11400000, guid: d5536fd6fba6f244c900c011b7e62db9, type: 2}
