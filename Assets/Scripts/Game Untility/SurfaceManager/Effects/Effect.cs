@@ -28,21 +28,17 @@ public abstract class Effect<TInstance> : EffectBase where TInstance : EffectIns
             );
         }
 
-        // THIS IS BEAUTIFUL (˵ ͜ʖ ˵)
+        // THIS IS BEAUTIFUL TYPING MAGIC (˵ ͜ʖ ˵)
         TInstance instance = effectPool.Get();
-        var typedInstance = instance as EffectInstanceBase;
-        if (typedInstance != null)
+
+        if (instance is IEffectInstance effectInstance)
         {
-            var initializeMethod = instance.GetType().GetMethod("InitializeEffectData");
-            if (initializeMethod != null)
-            {
-                initializeMethod.Invoke(instance, new object[] { this });
-                typedInstance.PlayEffect(hitPoint, hitNormal);
-            }
-            else
-            {
-                Debug.LogError($"InitializeEffectData method not found in {instance.GetType().Name}");
-            }
+            effectInstance.InitializeEffectData(this);
+            effectInstance.PlayEffect(hitPoint, hitNormal);
+        }
+        else
+        {
+            Debug.LogError($"{instance.name} does not implement IEffectInstance.");
         }
     }
 
