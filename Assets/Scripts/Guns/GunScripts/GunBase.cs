@@ -18,7 +18,6 @@ public abstract class GunBase : MonoBehaviour
 
     public virtual void Initialize(Transform raycastOrigin)
     {
-        Debug.Log("starting");
         gameObject.SetActive(false);
         lastShootTime = 0f;
         trailPool = new ObjectPool<TrailRenderer>(CreateTrail);
