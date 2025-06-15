@@ -45,6 +45,11 @@ public abstract class Effect<TInstance> : EffectBase where TInstance : EffectIns
             }
         }
     }
+
+    public void ReleaseInstance(TInstance instance)
+    {
+        effectPool.Release(instance);
+    }
 }
 
 [CreateAssetMenu(fileName = "Audio Effect", menuName = "Impact System/Effects/Audio Effect", order = 2)]

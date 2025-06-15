@@ -15,4 +15,4 @@ MonoBehaviour:
   impactTypeEffects:
   - impactType: {fileID: 11400000, guid: ba9e87ee9270d634f9610b4ad8371741, type: 2}
     effects:
-    - {fileID: 11400000, guid: e97e037b5f4ed6a48bced16121a01eed, type: 2}
+    - {fileID: 11400000, guid: a29d71b9c58f80e4a9d358ae7fa4317f, type: 2}

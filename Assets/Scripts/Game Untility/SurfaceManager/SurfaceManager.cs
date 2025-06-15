@@ -34,7 +34,6 @@ public class SurfaceManager : MonoBehaviour
     }
 
     [SerializeField] private List<SurfaceType> surfaces = new();
-    [SerializeField] private int defaultPoolSize = 10;
     [SerializeField] private Surface defaultSurface;
 
     // Handle each type of impact on different game objects

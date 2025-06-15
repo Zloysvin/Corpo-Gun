@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: Audio Effect
+  m_Name: Audio Effect 1
   m_EditorClassIdentifier: Assembly-CSharp::PlayAudioEffect
   prefab: {fileID: 5719088602760704129, guid: a29eb54c8a436d6439b44f60624d6155, type: 3}
   audioClips:
