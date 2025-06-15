@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering;
 
 [CreateAssetMenu(fileName = "Tail Config", menuName = "Guns/Gun Trail Config", order = 4)]
 public class TrailConfigScriptableObject : ScriptableObject

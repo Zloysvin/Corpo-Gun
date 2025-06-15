@@ -2,12 +2,12 @@ using System.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Impact System/Effects/Spawn Object Effect", fileName = "Spawn Object Effect", order = 0)]
-public class SpawnObjectEffect : Effect
+public class SpawnParticleEffect : Effect
 {
-    public GameObject prefab;
-    public float probability = 1f;
-    public bool randomizeRotation;
-    public Vector3 randomizedRotationMultiplier = Vector3.zero;
+    [SerializeField] private GameObject prefab;
+    [SerializeField] private float probability = 1f;
+    [SerializeField] private bool randomizeRotation;
+    [SerializeField] private Vector3 randomizedRotationMultiplier = Vector3.zero;
 
     public override void PlayEffect(Vector3 hitPoint, Vector3 hitNormal, int defaultPoolSize, System.Action<IEnumerator> coroutineRunner = null)
     {
