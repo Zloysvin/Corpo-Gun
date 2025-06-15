@@ -4,13 +4,14 @@ using UnityEngine.Pool;
 
 public abstract class GunBase : MonoBehaviour
 {
-    [SerializeField] private ImpactType impactType;
     public GunType type;
+    [SerializeField] private ImpactType impactType;
     [SerializeField] private string id;
     [SerializeField] private Vector3 spawnPoint;
     [SerializeField] private ParticleSystem fireParticleSystem;
     [SerializeField] private ShootConfigurationScriptableObject shootConfig;
     [SerializeField] private TrailConfigScriptableObject trailConfig;
+    [SerializeField] private Transform trailStart;
 
     private Transform raycastOrigin;
     private float lastShootTime;
@@ -39,7 +40,7 @@ public abstract class GunBase : MonoBehaviour
             fireParticleSystem.Stop();
         }
         gameObject.SetActive(false);
-        
+
         // Some sort of animation or logic to switch off this weapon
     }
 
@@ -59,15 +60,11 @@ public abstract class GunBase : MonoBehaviour
 
             if (Physics.Raycast(raycastOrigin.transform.position, shootDirection, out RaycastHit hit, float.MaxValue, shootConfig.HitMask))
             {
-                Debug.Log($"Hit: {hit.collider.name}");
-                Debug.DrawLine(raycastOrigin.transform.position, hit.point, Color.red, 2f);
-                StartCoroutine(PlayTrail(raycastOrigin.transform.position, hit.point, hit));
+                StartCoroutine(PlayTrail(trailStart.position, hit.point, hit));
             }
             else
             {
-                Debug.Log("Missed");
-                Debug.DrawLine(raycastOrigin.transform.position, hit.point, Color.red, 2f);
-                StartCoroutine(PlayTrail(raycastOrigin.transform.position, raycastOrigin.transform.position + (shootDirection * trailConfig.missDistance), new RaycastHit()));
+                StartCoroutine(PlayTrail(trailStart.position, raycastOrigin.transform.position + (shootDirection * trailConfig.missDistance), new RaycastHit()));
             }
         }
     }
@@ -79,6 +76,7 @@ public abstract class GunBase : MonoBehaviour
         trail.transform.position = start;
         yield return null;
 
+        trail.enabled = true;
         trail.emitting = true;
 
         float distance = Vector3.Distance(start, end);
@@ -96,7 +94,7 @@ public abstract class GunBase : MonoBehaviour
         if (hit.collider != null)
         {
             SurfaceManager.Instance.HandleImpact(hit.transform.gameObject, end, hit.normal, impactType, 0);
-        }   
+        }
         else
         {
             trail.transform.rotation = Quaternion.LookRotation((end - start).normalized, Vector3.up);
@@ -105,6 +103,7 @@ public abstract class GunBase : MonoBehaviour
         yield return new WaitForSeconds(trailConfig.duration);
         yield return null;
         trail.emitting = false;
+        trail.enabled = false;
         trail.gameObject.SetActive(false);
         trailPool.Release(trail);
     }
