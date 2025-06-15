@@ -59,9 +59,9 @@ public class SurfaceManager : MonoBehaviour
                 {
                     if (typeEffect.impactType == impact)
                     {
-                        foreach (Effect effect in typeEffect.effects)
+                        foreach (EffectBase effect in typeEffect.effects)
                         {
-                            effect.PlayEffect(hitPoint, hitNormal, defaultPoolSize, coroutine => StartCoroutine(coroutine));
+                            effect.CreateInstance(hitPoint, hitNormal);
                         }
                     }
                 }
@@ -73,9 +73,9 @@ public class SurfaceManager : MonoBehaviour
                 {
                     if (typeEffect.impactType == impact)
                     {
-                        foreach (Effect effect in typeEffect.effects)
+                        foreach (EffectBase effect in typeEffect.effects)
                         {
-                            effect.PlayEffect(hitPoint, hitNormal, defaultPoolSize, coroutine => StartCoroutine(coroutine));
+                            effect.CreateInstance(hitPoint, hitNormal);
                         }
                     }
                 }
