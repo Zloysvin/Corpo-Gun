@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
+using FMODUnity;
 
 [System.Serializable]
 public abstract class EffectBase : ScriptableObject
@@ -52,6 +53,14 @@ public abstract class Effect<TInstance> : EffectBase where TInstance : EffectIns
 public class PlayAudioEffect : Effect<AudioEffectInstance>
 {
     public List<AudioClip> audioClips = new();
+    public Vector2 volumeRange = new(0f, 1f);
+    public float soundOffset = 1f;
+}
+
+[CreateAssetMenu(fileName = "FMOD Audio Effect", menuName = "Impact System/Effects/FMOD Audio Effect", order = 1)]
+public class PlayFMODAudioEffect : Effect<FMODAudioEffectInstance>
+{
+    public List<EventReference> soundReferences;
     public Vector2 volumeRange = new(0f, 1f);
     public float soundOffset = 1f;
 }

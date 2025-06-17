@@ -5,7 +5,6 @@ public class ParticleEffectInstance : EffectInstance<PlayParticleEffect>
 {
     public override void PlayEffect(Vector3 hitPoint, Vector3 hitNormal)
     {
-        PlayParticleEffect data = effectData;
         if (data == null)
         {
             Debug.LogError("Effect data is not of type PlayAudioEffect");

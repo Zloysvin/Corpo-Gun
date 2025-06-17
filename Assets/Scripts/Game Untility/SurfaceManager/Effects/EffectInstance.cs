@@ -15,13 +15,13 @@ public abstract class EffectInstanceBase : MonoBehaviour, IEffectInstance
 
 public abstract class EffectInstance<TEffect> : EffectInstanceBase where TEffect : EffectBase
 {
-    protected TEffect effectData;
+    protected TEffect data;
 
     public override void InitializeEffectData(EffectBase effect)
     {
-        effectData = effect as TEffect;
+        data = effect as TEffect;
 
-        if (effectData == null)
+        if (data == null)
         {
             Debug.LogError($"Effect data was not of expected type {typeof(TEffect).Name}");
         }

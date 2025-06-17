@@ -6,8 +6,6 @@ public class AudioEffectInstance : EffectInstance<PlayAudioEffect>
 {    
     public override void PlayEffect(Vector3 hitPoint, Vector3 hitNormal)
     {
-        PlayAudioEffect data = effectData;
-
         if (data == null)
         {
             Debug.LogError("Effect data is not of type PlayAudioEffect");
@@ -29,6 +27,6 @@ public class AudioEffectInstance : EffectInstance<PlayAudioEffect>
     private IEnumerator DisposeAfter(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        effectData.ReleaseInstance(this);
+        data.ReleaseInstance(this);
     }
 }
