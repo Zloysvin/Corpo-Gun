@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: FMOD Audio Effect
+  m_EditorClassIdentifier: Assembly-CSharp::PlayFMODAudioEffect
+  prefab: {fileID: 3815319747819581639, guid: ff0f7cd2bb2f22c449ac33e7f1f14d7c, type: 3}
+  soundReferences:
+  - Guid:
+      Data1: 1565284265
+      Data2: 1220717129
+      Data3: 527673250
+      Data4: 1645284843
+    Path: event:/Test
+  volumeRange: {x: 0, y: 1}
+  soundOffset: 1
