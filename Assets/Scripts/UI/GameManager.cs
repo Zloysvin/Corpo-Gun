@@ -1,8 +1,11 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private Bootscreen bootScreen;
+    [SerializeField] private Menu bootScreen;
+
+    // ------------------ SCENE / GAMESTATE MANAGEMENT ------------------ //
 
     private static GameManager _instance;
 
@@ -26,22 +29,32 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        DontDestroyOnLoad(gameObject);
         Instance = this;
     }
 
     private void Start()
     {
-        bootScreen.gameObject.SetActive(true);
-        bootScreen.Init();
+        bootScreen.PlayMenuStart();
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    public void StartGame()
+    public void LoadGame()
     {
-        Debug.Log("Starting game...");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     public void ExitGame()
     {
         Application.Quit();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == 1)
+        {
+            // bootScreen.StartGame();
+        }
     }
 }

@@ -32,6 +32,16 @@ public class AudioManager : MonoBehaviour
     {
         RuntimeManager.PlayOneShot(soundReference, position);
 
-        
+
+    }
+
+    public void PlaySoundLoop(EventReference soundReference, Vector3 position)
+    {
+        RuntimeManager.PlayOneShot(soundReference, position);
+    }
+
+    public void StopSoundLoop(EventReference soundReference)
+    {
+        // Stop
     }
 }
