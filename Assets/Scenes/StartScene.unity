@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 285670045}
   - component: {fileID: 285670044}
   - component: {fileID: 285670043}
+  - component: {fileID: 285670047}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -256,6 +257,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &285670047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 285670042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86c6556701af9e04380698b89f691b6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nonRigidbodyVelocity: 0
+  attenuationObject: {fileID: 285670042}
 --- !u!1 &495826155
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,7 +283,7 @@ GameObject:
   - component: {fileID: 495826158}
   - component: {fileID: 495826157}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: cmdLine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -404,7 +419,7 @@ GameObject:
   - component: {fileID: 769557453}
   - component: {fileID: 769557452}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: log
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -588,6 +603,7 @@ GameObject:
   - component: {fileID: 909533475}
   - component: {fileID: 909533474}
   - component: {fileID: 909533476}
+  - component: {fileID: 909533477}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -635,6 +651,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 938e3258b0d33354b8c799c5857074b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &909533477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909533473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac2e7d33bcf70cc4ea2707bb6032fd0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  menuLoopSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  typingSound:
+    Guid:
+      Data1: -676028795
+      Data2: 1265814149
+      Data3: 273601710
+      Data4: -634424163
+    Path: event:/AX/Player/UI/UI Main
+  playerFootstepSound:
+    Guid:
+      Data1: -197739842
+      Data2: 1273112648
+      Data3: 1485366194
+      Data4: -182482242
+    Path: event:/AX/Player/Footsteps/Player_Footsteps
+  consoleTypingSound:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!1 &1122192057
 GameObject:
   m_ObjectHideFlags: 0
@@ -1032,13 +1088,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CharactersPerSecond: 200
-  typingSound:
-    Guid:
-      Data1: -676028795
-      Data2: 1265814149
-      Data3: 273601710
-      Data4: -634424163
-    Path: event:/AX/Player/UI/UI Main
   textBox: {fileID: 769557452}
   PlaySound: 1
 --- !u!1 &1726094665
@@ -1053,7 +1102,7 @@ GameObject:
   - component: {fileID: 1726094668}
   - component: {fileID: 1726094667}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

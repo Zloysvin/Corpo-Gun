@@ -3,8 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private Menu bootScreen;
-
     // ------------------ SCENE / GAMESTATE MANAGEMENT ------------------ //
 
     private static GameManager _instance;
@@ -35,14 +33,13 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        bootScreen.PlayMenuStart();
-
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     public void LoadGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        Debug.Log("Loading game...");
     }
 
     public void ExitGame()

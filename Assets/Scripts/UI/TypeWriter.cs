@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using FMOD.Studio;
 using FMODUnity;
 using TMPro;
 using UnityEngine;
@@ -8,7 +9,6 @@ using UnityEngine;
 public class TypeWriter : MonoBehaviour
 {
     [SerializeField] private int CharactersPerSecond;
-    [SerializeField] private EventReference typingSound;
     [SerializeField] private TMP_Text textBox;
     public event Action OnTypeWriterCleared;
     public event Action<int> OnLineFinished;
@@ -21,22 +21,40 @@ public class TypeWriter : MonoBehaviour
     private string currentString = "";
     private bool skipLine = false;
     private List<string> currentTexts = new List<string>();
+    private EventInstance typingSound;
+    private bool isTyping = false;
 
     private void Awake()
     {
         delay = new WaitForSeconds(1f / CharactersPerSecond);
+        // typingSound = RuntimeManager.CreateInstance(FMODEvents.Instance.consoleTypingSound);
     }
 
-    public void StartTypeWriter(List<string> texts, bool shouldClear, Action onFinshed = null)
+    public void StartTypeWriter(List<string> texts, bool shouldClearOnNewLine, bool clearCurrent, Action onFinshed = null)
     {
-        ClearTypeWriter();
+        if (clearCurrent)
+            SkipAll();
         currentTexts = texts;
-        var num = TypeWriteCoroutine(shouldClear, onFinshed);
+        var num = TypeWriteCoroutine(shouldClearOnNewLine, onFinshed);
         typewriter = StartCoroutine(num);
+    }
+
+    void Update()
+    {
+        if (isTyping)
+        {
+            PLAYBACK_STATE playbackState;
+            typingSound.getPlaybackState(out playbackState);
+            if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
+            {
+                // typingSound.start();
+            }
+        }
     }
 
     private IEnumerator TypeWriteCoroutine(bool shouldClear, Action onFinished = null)
     {
+        isTyping = true;
         textBox.text = "";
         foreach (string line in currentTexts)
         {
@@ -54,8 +72,6 @@ public class TypeWriter : MonoBehaviour
                 // Skip the space if the next character is also a space
                 if (!(c == ' ' && textBox.text.Length > currentStringIndex + 1 && currentString[currentStringIndex + 1] == ' '))
                 {
-                    if (PlaySound)
-                        AudioManager.Instance.PlayOneShot(typingSound);
                     yield return delay;
                 }
             }
@@ -75,7 +91,28 @@ public class TypeWriter : MonoBehaviour
             yield return delay;
         }
 
+        isTyping = false;
         OnTypeWriterFinished?.Invoke();
+        onFinished?.Invoke();
+    }
+
+    public bool IsTyping()
+    {
+        return isTyping;
+    }
+
+    public void SkipAll()
+    {
+        if (!isTyping)
+            return;
+
+        textBox.text = string.Empty;
+
+        StopAllCoroutines();
+        foreach (string line in currentTexts)
+        {
+            textBox.text += line + "\n";
+        }
     }
 
     public void ClearTypeWriter()

@@ -1,3 +1,5 @@
+using FMOD.Studio;
+using FMODUnity;
 using KinematicCharacterController;
 using UnityEngine;
 
@@ -89,6 +91,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     private float _timeSinceJumpRequest;
     private bool _ungroundedDueToJump;
 
+    private EventInstance footStepSound;
+
     public void Initialize()
     {
         _state.Stance = Stance.Stand;
@@ -96,6 +100,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
         _uncrouchOverlapResults = new Collider[8];
         motor.CharacterController = this;
+
+        footStepSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.playerFootstepSound);
     }
 
     public void UpdateInput(CharacterInput input)
@@ -176,6 +182,20 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
             _state.Acceleration = (moveVelocity - currentVelocity) / deltaTime;
             currentVelocity = moveVelocity;
+
+            if (currentVelocity.sqrMagnitude > 0.01f)
+            {
+                PLAYBACK_STATE playbackState;
+                footStepSound.getPlaybackState(out playbackState);
+                if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
+                {
+                    footStepSound.start();
+                }
+            }
+            else
+            {
+                footStepSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            }
         }
         // Air movement
         else

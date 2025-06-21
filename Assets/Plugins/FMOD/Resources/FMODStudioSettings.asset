@@ -607,10 +607,10 @@ MonoBehaviour:
   m_Name: FMODStudioSettings
   m_EditorClassIdentifier: 
   switchSettingsMigration: 1
-  HasSourceProject: 0
-  HasPlatforms: 0
+  HasSourceProject: 1
+  HasPlatforms: 1
   sourceProjectPath: C:/Users/Ben/Downloads/corpofmod/CorpoGun_FMOD_Main_V1/CorpoGun_FMOD_Main_V1.fspro
-  sourceBankPath: Assets/StreamingAssets/FMOD
+  sourceBankPath: C:/Users/Ben/Downloads/corpofmod/CorpoGun_FMOD_Main_V1/Build
   sourceBankPathUnformatted: 
   BankRefreshCooldown: 5
   ShowBankRefreshWindow: 1
@@ -620,7 +620,7 @@ MonoBehaviour:
   EncryptionKey: 
   ImportType: 0
   TargetAssetPath: FMODBanks
-  TargetBankFolder: 
+  TargetBankFolder: Assets/StreamingAssets/FMOD
   EventLinkage: 0
   LoggingLevel: 2
   SpeakerModeSettings: []
@@ -633,10 +633,7 @@ MonoBehaviour:
   Plugins: []
   MasterBanks:
   - Master
-  - Desktop/Master
   Banks:
-  - Desktop/Music
-  - Desktop/SFX
   - Music
   - SFX
   BanksToLoad: []

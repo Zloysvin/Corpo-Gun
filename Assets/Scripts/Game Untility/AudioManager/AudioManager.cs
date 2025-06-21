@@ -1,8 +1,12 @@
 using UnityEngine;
 using FMODUnity;
+using FMOD.Studio;
+using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour
 {
+    private List<EventInstance> _activeInstances = new List<EventInstance>();
+
     private static AudioManager _instance;
 
     public static AudioManager Instance
@@ -38,13 +42,24 @@ public class AudioManager : MonoBehaviour
         RuntimeManager.PlayOneShot(soundReference);
     }
 
-    public void PlaySoundLoop(EventReference soundReference, Vector3 position)
+    public EventInstance CreateEventInstance(EventReference soundReference)
     {
-        RuntimeManager.PlayOneShot(soundReference, position);
+        EventInstance instance = RuntimeManager.CreateInstance(soundReference);
+        _activeInstances.Add(instance);
+        return instance;
     }
 
-    public void StopSoundLoop(EventReference soundReference)
+    private void CleanUp()
     {
-        // Stop
+        foreach (var instance in _activeInstances)
+        {
+            instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            instance.release();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        CleanUp();
     }
 }
