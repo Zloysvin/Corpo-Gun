@@ -53,7 +53,11 @@ public class TypeWriter : MonoBehaviour
                 }
                 // Skip the space if the next character is also a space
                 if (!(c == ' ' && textBox.text.Length > currentStringIndex + 1 && currentString[currentStringIndex + 1] == ' '))
+                {
+                    if (PlaySound)
+                        AudioManager.Instance.PlayOneShot(typingSound);
                     yield return delay;
+                }
             }
 
             currentStringIndex = 0;

@@ -587,6 +587,7 @@ GameObject:
   m_Component:
   - component: {fileID: 909533475}
   - component: {fileID: 909533474}
+  - component: {fileID: 909533476}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -622,6 +623,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &909533476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909533473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938e3258b0d33354b8c799c5857074b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1122192057
 GameObject:
   m_ObjectHideFlags: 0
@@ -969,7 +982,7 @@ GameObject:
   - component: {fileID: 1605684441}
   - component: {fileID: 1605684443}
   m_Layer: 0
-  m_Name: BootScreen
+  m_Name: Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1021,13 +1034,13 @@ MonoBehaviour:
   CharactersPerSecond: 200
   typingSound:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: -676028795
+      Data2: 1265814149
+      Data3: 273601710
+      Data4: -634424163
+    Path: event:/AX/Player/UI/UI Main
   textBox: {fileID: 769557452}
-  PlaySound: 0
+  PlaySound: 1
 --- !u!1 &1726094665
 GameObject:
   m_ObjectHideFlags: 0
