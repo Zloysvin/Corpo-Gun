@@ -5,6 +5,9 @@ public class GameManager : MonoBehaviour
 {
     // ------------------ SCENE / GAMESTATE MANAGEMENT ------------------ //
 
+    public string agentName = "Agent";
+    public int difficulty = 1;
+
     private static GameManager _instance;
 
     public static GameManager Instance
