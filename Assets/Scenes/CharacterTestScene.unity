@@ -492,6 +492,51 @@ Transform:
   - {fileID: 552897514}
   m_Father: {fileID: 1605722930}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &230679864
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 230679865}
+  - component: {fileID: 230679866}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &230679865
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230679864}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 150.25525, y: 295.39487, z: -59.47943}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &230679866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230679864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3938a667550390444aab72d3ebc6656f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bootScreen: {fileID: 893424965}
 --- !u!1 &278353465
 GameObject:
   m_ObjectHideFlags: 0
@@ -1304,6 +1349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 893424964}
   - component: {fileID: 893424965}
+  - component: {fileID: 893424966}
   m_Layer: 5
   m_Name: BootScreen
   m_TagString: Untagged
@@ -1343,6 +1389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99ae79eaba3869c40878b371798e7559, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bootScreenCanvasGroup: {fileID: 893424966}
   textComponent: {fileID: 330810455}
   dialogue:
   - Initializing...
@@ -1351,6 +1398,18 @@ MonoBehaviour:
   - Ok I respond
   delay: 0.05
   timeBetweenLines: 1
+--- !u!225 &893424966
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893424963}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &938856553
 GameObject:
   m_ObjectHideFlags: 0
@@ -2582,3 +2641,4 @@ SceneRoots:
   - {fileID: 513308579}
   - {fileID: 301282497}
   - {fileID: 1350295271}
+  - {fileID: 230679865}
