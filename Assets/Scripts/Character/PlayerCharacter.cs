@@ -92,6 +92,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
     private bool _ungroundedDueToJump;
 
     private EventInstance footStepSound;
+    private Vector3 _lastFootStepPosition;
+    private float footStepDistance = 1.5f;
 
     public void Initialize()
     {
@@ -183,18 +185,12 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             _state.Acceleration = (moveVelocity - currentVelocity) / deltaTime;
             currentVelocity = moveVelocity;
 
-            if (currentVelocity.sqrMagnitude > 0.01f)
+            float movedDistance = Vector3.Distance(transform.position, _lastFootStepPosition);
+
+            if (movedDistance >= footStepDistance)
             {
-                PLAYBACK_STATE playbackState;
-                footStepSound.getPlaybackState(out playbackState);
-                if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
-                {
-                    footStepSound.start();
-                }
-            }
-            else
-            {
-                footStepSound.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+                // footStepSound.start();
+                _lastFootStepPosition = transform.position;
             }
         }
         // Air movement

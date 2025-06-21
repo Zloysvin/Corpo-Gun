@@ -5,10 +5,14 @@ using UnityEngine;
 
 public class FMODEvents : MonoBehaviour
 {
-    public EventReference menuLoopSound;
+    public EventReference menuBGM;
+    public EventReference gameBGM;
     public EventReference typingSound;
     public EventReference playerFootstepSound;
     public EventReference consoleTypingSound;
+    public EventReference pistolShotSound;
+    public EventReference smgShotSound;
+    public EventReference suitDXSound;
 
     private static FMODEvents _instance;
 

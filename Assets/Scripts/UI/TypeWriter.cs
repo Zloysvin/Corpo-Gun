@@ -27,7 +27,8 @@ public class TypeWriter : MonoBehaviour
     private void Awake()
     {
         delay = new WaitForSeconds(1f / CharactersPerSecond);
-        // typingSound = RuntimeManager.CreateInstance(FMODEvents.Instance.consoleTypingSound);
+        typingSound = RuntimeManager.CreateInstance(FMODEvents.Instance.consoleTypingSound);
+        typingSound.setParameterByName("Volume", 0.5f);
     }
 
     public void StartTypeWriter(List<string> texts, bool shouldClearOnNewLine, bool clearCurrent, Action onFinshed = null)
@@ -39,22 +40,25 @@ public class TypeWriter : MonoBehaviour
         typewriter = StartCoroutine(num);
     }
 
-    void Update()
+    IEnumerator TypingSoundLoop()
     {
-        if (isTyping)
+        while (isTyping)
         {
             PLAYBACK_STATE playbackState;
             typingSound.getPlaybackState(out playbackState);
             if (playbackState.Equals(PLAYBACK_STATE.STOPPED))
             {
-                // typingSound.start();
+                typingSound.setPitch(UnityEngine.Random.Range(0.7f, 0.9f));
+                typingSound.start();
             }
+            yield return new WaitForSeconds(UnityEngine.Random.Range(0.03f, 0.08f));
         }
     }
 
     private IEnumerator TypeWriteCoroutine(bool shouldClear, Action onFinished = null)
     {
         isTyping = true;
+        StartCoroutine(TypingSoundLoop());
         textBox.text = "";
         foreach (string line in currentTexts)
         {

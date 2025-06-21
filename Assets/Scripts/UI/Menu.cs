@@ -1,7 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using FMOD.Studio;
-using FMODUnity;
 using TMPro;
 using UnityEngine;
 
@@ -9,57 +9,84 @@ public class Menu : MonoBehaviour
 {
     [SerializeField] private TMP_Text cmdLine;
     [SerializeField] private TypeWriter typeWriter;
+    [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private float fadeDuration = 0.5f;
     private float backspaceDelay = 0.1f;
     private float backspaceTimer = 0f;
-    private Dictionary<string, Action> cmds;
+    private Dictionary<string, Action<List<string>>> cmds;
     private bool cmdDisabled = false;
-    private EventInstance menuLoopSound;
     private EventInstance typingSound;
+    private EventInstance menuBGM;
 
     void Start()
     {
-        // menuLoopSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuLoopSound);
+        menuBGM = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuBGM);
+        menuBGM.start();
         typingSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.typingSound);
-        cmds = new Dictionary<string, Action> {
-            { "help", () => typeWriter.StartTypeWriter(new List<string>()
+        cmds = new Dictionary<string, Action<List<string>>> {
+            { "help", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> help",
-                    "Basic Help",
-                    "help                                | Prints this message",
+                    "Game Help",
                     "play                                | Starts the game",
+                    "settings                            | Prints the setting commands",
                     "exit                                | Exits the game",
-                    "settings                            | Displays setting commands",
-                    "echo <message>                      | Echoes the message back to you",
-                    "clear                               | Clears the terminal",
+                    "credits                             | Prints the credits",
+                    "help                                | Prints this message",
                     "",
                     "Color Help",
                     "theme                               | List of available themes",
                     "theme <theme>                       | Changes the theme to the specified one",
                     "",
                     "Agent Help",
-                    "agent:help                          | Prints what are agents",
+                    "agent:info                          | Prints agent explanation",
                     "agent:current                       | Prints the current agent",
                     "agent:list                          | Lists all available agents currently active",
-                    "agent:view:[camera]                 | Views the camera feed of the specified network",
-                    "agent:view:quit                     | Quits the camera feed"
+                    "agent:select <agent>                | Selects the specified agent",
+                    // "", Thought these might be cool
+                    // "System Controls",
+                    // "echo <message>                      | Echoes the message back to you",
+                    // "clear                               | Clears the terminal",
+                    // "",
                 }, false, true)
             },
-            { "play", () =>
-            {
-                cmdDisabled = true;
-                typeWriter.StartTypeWriter(new List<string>()
-                {
-                    "Starting game...",
-                    "Loading assets...",
-                    "Initializing game state...",
-                    "Please wait..."
-                }, false, true, () => GameManager.Instance.LoadGame());
 
-            }},
-            { "settings", () => typeWriter.StartTypeWriter(new List<string>()
+            // ---------------------- Game Help ----------------------//
+
+            { "play", args =>
                 {
+                    cmdDisabled = true;
+                    typeWriter.StartTypeWriter(new List<string>()
+                    {
+                        "> play",
+                        "Starting game...",
+                        "Loading assets...",
+                        "Initializing game state...",
+                        "Please wait..."
+                    }, false, true, () => {
+                        menuBGM.stop(STOP_MODE.ALLOWFADEOUT);
+                        StartCoroutine(FadeOut());
+                    });
+
+                }},
+            { "exit", args =>
+                {
+                    cmdDisabled = true;
+                    typeWriter.StartTypeWriter(new List<string>()
+                    {
+                        "> exit",
+                        "Exiting game...",
+                        "Saving game state...",
+                        "Goodbye! Unless this is a web version then no this won't do anything."
+                    }, false, true, () => {
+                        GameManager.Instance.ExitGame();
+                    });
+                }},
+            { "settings", args => typeWriter.StartTypeWriter(new List<string>()
+                {
+                    "> settings",
                     "Settings",
-                    "currently not implemented",
+                    "settings:volume <value>             | Sets the volume to the specified value (0-100)",
                     // "settings:toggle_sprint              | Toggles sprinting on or off",
                     // "settings:toggle_crouch              | Toggles crouching on or off",
                     // "settings:toggle_lean                | Toggles leaning on or off",
@@ -67,6 +94,100 @@ public class Menu : MonoBehaviour
                     // "settings:toggle_vignette            | Toggles vignette on or off",
                 }, false, true)
             },
+            { "credits", args => typeWriter.StartTypeWriter(new List<string>()
+                {
+                    "> credits",
+                    "Credits",
+                    "Citers             | Concept art, Textures, Asset creation, Character/weapon animator, Level design",
+                    "Resben             | Programmer, UI/UX development, Gameplay mechanics, Narrative design",
+                    "Josh Bakaimis      | Sound design, Music composition, SFX",
+                    "Zloysvin           | Game design, AI agents, Narrative design",
+                }, false, true)
+            },
+
+            // ---------------------- Color Help ----------------------//
+
+            { "theme", args =>
+                {
+                    if (args.Count < 2)
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> theme",
+                            "Available themes:",
+                            "default                             | The default theme",
+                            "cybergreen                          | A cyberpunk green theme",
+                            "synthblue                           | A synthwave blue theme",
+                        }, false, true);
+                        return;
+                    }
+
+                    switch (args[1])
+                    {
+                        case "default":
+                            typeWriter.StartTypeWriter(new List<string>()
+                            {
+                                "> theme default",
+                                "Theme set to default."
+                            }, false, true);
+                            break;
+                        case "cybergreen":
+                            typeWriter.StartTypeWriter(new List<string>()
+                            {
+                                "> theme dark",
+                                "Theme set to dark."
+                            }, false, true);
+                            break;
+                        case "synthblue":
+                            typeWriter.StartTypeWriter(new List<string>()
+                            {
+                                "> theme light",
+                                "Theme set to light."
+                            }, false, true);
+                            break;
+                        default:
+                            typeWriter.StartTypeWriter(new List<string>()
+                            {
+                                "> theme",
+                                "Available themes:",
+                                "default                             | The default theme",
+                                "cybergreen                          | A cyberpunk green theme",
+                                "synthblue                           | A synthwave blue theme",
+                            }, false, true);
+                            break;
+                    }
+                }
+            },
+
+            // ---------------------- Agent Help ----------------------//
+
+            { "agent:info", args => typeWriter.StartTypeWriter(new List<string>()
+                {
+                    "> agent:info",
+                    "Some lore on agents"
+                }, false, true)
+            },
+            { "agent:current", args => typeWriter.StartTypeWriter(new List<string>()
+                {
+                    "> agent:current",
+                    "Current agent: [Agent Name]",
+                }, false, true)
+            },
+            { "agent:list", args => typeWriter.StartTypeWriter(new List<string>()
+                {
+                    "> agent:list",
+                    "Available agents:",
+                    "Alpha:         Status: Currently active",
+                    "Bravo:         Status: Diseased",
+                    "Echo:          Status: Currently active",
+                    "Romeo:         Status: Currently active",
+                }, false, true)
+            },
+            { "agent:select", args => typeWriter.StartTypeWriter(new List<string>()
+                {
+                    "> agent:select " + args
+                }, false, true)
+            }
         };
 
         typeWriter.StartTypeWriter(new List<string>() { "Type 'Help' for commands." }, false, true);
@@ -91,12 +212,13 @@ public class Menu : MonoBehaviour
             }
 
             string cmd = cmdLine.text.Trim().ToLower()[6..];
+            List<string> argsList = new List<string>(cmd.Split(' '));
 
-            if (cmds.ContainsKey(cmd))
+            if (argsList.Count != 0 && cmds.ContainsKey(argsList[0]))
             {
                 typeWriter.ClearTypeWriter();
                 typeWriter.StartTypeWriter(new List<string>() { cmdLine.text }, false, true);
-                cmds[cmd].Invoke();
+                cmds[argsList[0]].Invoke(argsList);
             }
             else
             {
@@ -129,5 +251,23 @@ public class Menu : MonoBehaviour
                     cmdLine.text += c;
             }
         }
+    }
+
+    private IEnumerator FadeOut()
+    {
+        float elapsedTime = 0f;
+        float startAlpha = canvasGroup.alpha;
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsedTime / fadeDuration);
+            yield return null;
+        }
+
+        canvasGroup.alpha = 0f;
+
+        menuBGM.release();
+        GameManager.Instance.LoadGame();
     }
 }
