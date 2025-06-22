@@ -19,7 +19,7 @@ public class SimpleChasingEnemy : MonoBehaviour
 
     void Update()
     {
-        if (!player) return;
+        if (!player || !GameManager.Instance.IsGameInPlay()) return;
 
         float distance = Vector3.Distance(transform.position, player.GetPosition());
 
@@ -41,6 +41,7 @@ public class SimpleChasingEnemy : MonoBehaviour
 
     void Attack()
     {
+        GameManager.Instance.CurrentGameState = GameState.Extraction;
         agent.ResetPath(); // stop while attacking
         Debug.Log("Enemy attacks!");
         // Add damage logic or animation trigger here

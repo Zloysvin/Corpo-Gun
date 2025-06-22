@@ -42,6 +42,8 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (!GameManager.Instance.IsGameInPlay()) return;
+
         var input = _inputActions.Gameplay;
         var deltaTime = Time.deltaTime;
 

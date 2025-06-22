@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class AudioManager : MonoBehaviour
 {
     private List<EventInstance> _activeInstances = new List<EventInstance>();
-    private EventInstance bgmInstance;
 
     private static AudioManager _instance;
 
@@ -69,21 +68,8 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public void StartMusicCore(string musicName)
-    {
-        if (bgmInstance.isValid())
-        {
-            bgmInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            bgmInstance.release();
-        }
-        bgmInstance = RuntimeManager.CreateInstance(musicName);
-        bgmInstance.start();
-    }
-
     private void OnDestroy()
     {
-        bgmInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-        bgmInstance.release();
         CleanUp();
     }
 }
