@@ -26,13 +26,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 391104720903412051}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.6812046, y: -0, z: -0, w: 0.7320931}
   m_LocalPosition: {x: 0.428, y: 1.989, z: 0.47709942}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3100852322500096224}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 85.876, y: 0, z: 0}
 --- !u!108 &1292969479430060040
 Light:
   m_ObjectHideFlags: 0
@@ -42,15 +42,15 @@ Light:
   m_GameObject: {fileID: 391104720903412051}
   m_Enabled: 1
   serializedVersion: 11
-  m_Type: 2
+  m_Type: 0
   m_Color: {r: 0.9685534, g: 0.63536847, b: 0.33198828, a: 1}
-  m_Intensity: 1
-  m_Range: 2
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
+  m_Intensity: 2
+  m_Range: 2.1345053
+  m_SpotAngle: 127.05517
+  m_InnerSpotAngle: 118.85726
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -202,13 +202,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2173874939145344392}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0.6811239, y: -0, z: -0, w: 0.7321682}
   m_LocalPosition: {x: -0.51199996, y: 1.946, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3100852322500096224}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 85.863, y: 0, z: 0}
 --- !u!108 &7665764955386053069
 Light:
   m_ObjectHideFlags: 0
@@ -218,15 +218,15 @@ Light:
   m_GameObject: {fileID: 2173874939145344392}
   m_Enabled: 1
   serializedVersion: 11
-  m_Type: 2
+  m_Type: 0
   m_Color: {r: 0.9685534, g: 0.63536847, b: 0.33198828, a: 1}
-  m_Intensity: 1
-  m_Range: 2
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
+  m_Intensity: 2
+  m_Range: 2.409629
+  m_SpotAngle: 108.45778
+  m_InnerSpotAngle: 100.25986
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
