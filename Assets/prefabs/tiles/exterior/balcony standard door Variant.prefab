@@ -9,8 +9,56 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3219730086435066630, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3219730086435066630, guid: a20ded550082a13418dc54384436b8fe, type: 3}
       propertyPath: m_Shadows.m_Type
-      value: 1
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4631469930990023750, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.70712733
+      objectReference: {fileID: 0}
+    - target: {fileID: 4631469930990023750, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7070863
+      objectReference: {fileID: 0}
+    - target: {fileID: 4631469930990023750, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4726764360590330184, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.869
+      objectReference: {fileID: 0}
+    - target: {fileID: 4726764360590330184, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6975562
+      objectReference: {fileID: 0}
+    - target: {fileID: 4726764360590330184, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.7165301
+      objectReference: {fileID: 0}
+    - target: {fileID: 4726764360590330184, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 91.53699
+      objectReference: {fileID: 0}
+    - target: {fileID: 5420634167572568286, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5420634167572568286, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_Range
+      value: 3.3723354
+      objectReference: {fileID: 0}
+    - target: {fileID: 5420634167572568286, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_SpotAngle
+      value: 155.1721
+      objectReference: {fileID: 0}
+    - target: {fileID: 5420634167572568286, guid: a20ded550082a13418dc54384436b8fe, type: 3}
+      propertyPath: m_InnerSpotAngle
+      value: 135.9935
       objectReference: {fileID: 0}
     - target: {fileID: 5420634167572568286, guid: a20ded550082a13418dc54384436b8fe, type: 3}
       propertyPath: m_Shadows.m_Type
