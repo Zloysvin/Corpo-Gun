@@ -7532,6 +7532,7 @@ GameObject:
   - component: {fileID: 649712244}
   - component: {fileID: 649712246}
   - component: {fileID: 649712245}
+  - component: {fileID: 649712247}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -7567,6 +7568,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9aa768c5494d934a973f26f3314cc52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 40
+  maxHealth: 40
   animator: {fileID: 451491994}
   detectionRange: 7
   attackRange: 3
@@ -7592,6 +7595,29 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &649712247
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649712243}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.88, z: 0.18}
 --- !u!1001 &651303253
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13134,10 +13160,6 @@ PrefabInstance:
       propertyPath: standCameraTargetHeight
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 1195519758067246835, guid: 82b162252a410074086af327a9a97743, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.716
-      objectReference: {fileID: 0}
     - target: {fileID: 1916247980665009905, guid: 82b162252a410074086af327a9a97743, type: 3}
       propertyPath: m_LocalPosition.x
       value: -5.997
@@ -13278,10 +13300,6 @@ PrefabInstance:
       propertyPath: volumeProfile
       value: 
       objectReference: {fileID: 870364305}
-    - target: {fileID: 5490674170251087708, guid: 82b162252a410074086af327a9a97743, type: 3}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
     - target: {fileID: 7114361012780759638, guid: 82b162252a410074086af327a9a97743, type: 3}
       propertyPath: m_LocalPosition.x
       value: -514.4697
@@ -13322,42 +13340,19 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9126353577030093216, guid: 82b162252a410074086af327a9a97743, type: 3}
+      propertyPath: m_Center.x
+      value: -6.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 9126353577030093216, guid: 82b162252a410074086af327a9a97743, type: 3}
+      propertyPath: m_Center.z
+      value: -9.62
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5490674170251087708, guid: 82b162252a410074086af327a9a97743, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1092589905}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82b162252a410074086af327a9a97743, type: 3}
---- !u!1 &1092589904 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5490674170251087708, guid: 82b162252a410074086af327a9a97743, type: 3}
-  m_PrefabInstance: {fileID: 1092589903}
-  m_PrefabAsset: {fileID: 0}
---- !u!136 &1092589905
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1092589904}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.3
-  m_Height: 1.4
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1092589906 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7114361012780759638, guid: 82b162252a410074086af327a9a97743, type: 3}
@@ -20172,7 +20167,7 @@ GameObject:
   - component: {fileID: 1618888014}
   m_Layer: 0
   m_Name: LevelManager
-  m_TagString: Untagged
+  m_TagString: LevelManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

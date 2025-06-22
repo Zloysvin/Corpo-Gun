@@ -17,3 +17,10 @@ MonoBehaviour:
     m_Bits: 4294967295
   Spread: {x: 0.05, y: 0.05, z: 0.05}
   FireRate: 0.25
+  FireSound:
+    Guid:
+      Data1: -2022485150
+      Data2: 1074657873
+      Data3: -1305004650
+      Data4: 1927878721
+    Path: event:/AX/Player/Weapons/Pistol Main

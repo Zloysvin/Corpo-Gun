@@ -489,7 +489,7 @@ MonoBehaviour:
   startingGun: 0
   gunRaycastOrigin: {fileID: 6513509228546068071}
   gunPrefabs:
-  - {fileID: 5765750091168495426, guid: 198558b8e4d0d4941b2c666efcd92e45, type: 3}
+  - {fileID: 2396705072503517105, guid: 9b718bd2ec953014e8f508c0aaa0c70a, type: 3}
   activeGun: {fileID: 0}
 --- !u!1 &4680193503526112407
 GameObject:
@@ -503,6 +503,7 @@ GameObject:
   - component: {fileID: 1269560832719500041}
   - component: {fileID: 7939914391694906440}
   - component: {fileID: 4437943134996084612}
+  - component: {fileID: 9126353577030093216}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -670,12 +671,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfe7adfc9976814191b8a0746d11d33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 100
+  maxHealth: 100
   playerCharacter: {fileID: 479131566253297452}
   playerCamera: {fileID: 8672624433709988124}
   cameraSpring: {fileID: 205086373772520621}
   cameraLean: {fileID: 1358770524495424871}
   stanceVignette: {fileID: 3770514093033168565}
   volume: {fileID: 1245184877815739705}
+  hud: {fileID: 0}
   toggleSprint: 0
   toggleCrouch: 0
 --- !u!114 &4437943134996084612
@@ -691,6 +695,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gunSelector: {fileID: 4684845577091717351}
+--- !u!136 &9126353577030093216
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4680193503526112407}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Height: 1.7
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.89, z: 0}
 --- !u!1 &5490674170251087708
 GameObject:
   m_ObjectHideFlags: 0
@@ -927,6 +954,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dd72eff9fe5ade4886911a776e6e0a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowJump: 1
   allowHoldJump: 1
   allowCrouch: 1
   allowCoyoteBefore: 1
