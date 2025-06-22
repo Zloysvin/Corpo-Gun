@@ -21,9 +21,9 @@ public class Menu : MonoBehaviour
     void Start()
     {
         GameManager.Instance.agentName = "Alpha";
-        menuBGM = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuBGM);
+        menuBGM = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuBGM, true);
         menuBGM.start();
-        typingSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.typingSound);
+        typingSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.typingSound, false);
         cmds = new Dictionary<string, Action<List<string>>> {
             { "help", args => typeWriter.StartTypeWriter(new List<string>()
                 {
@@ -93,12 +93,55 @@ public class Menu : MonoBehaviour
                     "> settings",
                     "Settings",
                     "settings:volume <value>             | Sets the volume to the specified value (0-100)",
+                    "settings:sfx_volume <value>          | Sets the sound effects volume to the specified value (0-100)",
                     // "settings:toggle_sprint              | Toggles sprinting on or off",
                     // "settings:toggle_crouch              | Toggles crouching on or off",
                     // "settings:toggle_lean                | Toggles leaning on or off",
                     // "settings:toggle_camera_spring       | Toggles camera spring on or off",
                     // "settings:toggle_vignette            | Toggles vignette on or off",
-                }, false, true)
+            }, false, true)
+            },
+            { "settings:volume", args =>
+                {
+                    if (args.Count < 2 || !float.TryParse(args[1], out float volume) || volume < 0f || volume > 100f)
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> settings:volume",
+                            "Usage: settings:volume <value> (0-100)",
+                            "Current volume: " + GameManager.Instance.GetSFXVolume() * 100f
+                        }, false, true);
+                        return;
+                    }
+
+                    GameManager.Instance.SetVolume(volume / 100f);
+                    typeWriter.StartTypeWriter(new List<string>()
+                    {
+                        "> settings:volume " + volume,
+                        "Volume set to " + volume + "%"
+                    }, false, true);
+                }
+            },
+            { "settings:sfx_volume", args =>
+                {
+                    if (args.Count < 2 || !float.TryParse(args[1], out float sfxVolume) || sfxVolume < 0f || sfxVolume > 100f)
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> settings:sfx_volume",
+                            "Usage: settings:sfx_volume <value> (0-100)",
+                            "Current SFX volume: " + GameManager.Instance.GetSFXVolume() * 100f
+                        }, false, true);
+                        return;
+                    }
+
+                    GameManager.Instance.SetSFXVolume(sfxVolume / 100f);
+                    typeWriter.StartTypeWriter(new List<string>()
+                    {
+                        "> settings:sfx_volume " + sfxVolume,
+                        "SFX Volume set to " + sfxVolume + "%"
+                    }, false, true);
+                }
             },
             { "credits", args => typeWriter.StartTypeWriter(new List<string>()
                 {

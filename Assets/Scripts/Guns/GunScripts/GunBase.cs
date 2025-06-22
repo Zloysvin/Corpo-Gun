@@ -93,7 +93,7 @@ public abstract class GunBase : MonoBehaviour
 
         if (hit.collider != null)
         {
-            SurfaceManager.Instance.HandleImpact(hit.transform.gameObject, end, hit.normal, impactType, 0);
+            // SurfaceManager.Instance.HandleImpact(hit.transform.gameObject, end, hit.normal, impactType, 0);
         }
         else
         {

@@ -1,6 +1,7 @@
 using FMOD.Studio;
 using FMODUnity;
 using KinematicCharacterController;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum InputType
@@ -37,6 +38,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 {
     // Override settings
     [Header("Character Settings")]
+    [SerializeField] private bool allowJump = true;
     [SerializeField] private bool allowHoldJump = true;
     [SerializeField] private bool allowCrouch = true;
     [Tooltip("Allows you to queue a jump before you hit the ground transitioning quickly into the next jump (like b-hopping).")]
@@ -93,7 +95,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
     private EventInstance footStepSound;
     private Vector3 _lastFootStepPosition;
-    private float footStepDistance = 1.5f;
+    private float footStepDistance = 1.9f;
 
     public void Initialize()
     {
@@ -103,7 +105,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         _uncrouchOverlapResults = new Collider[8];
         motor.CharacterController = this;
 
-        footStepSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.playerFootstepSound);
+        footStepSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.playerFootstepSound, false);
     }
 
     public void UpdateInput(CharacterInput input)
@@ -189,7 +191,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
 
             if (movedDistance >= footStepDistance)
             {
-                // footStepSound.start();
+                footStepSound.start();
                 _lastFootStepPosition = transform.position;
             }
         }
@@ -239,7 +241,7 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
             currentVelocity += deltaTime * effectiveGravity * motor.CharacterUp;
         }
 
-        if (_requestedJump)
+        if (_requestedJump && allowJump)
         {
             var grounded = motor.GroundingStatus.IsStableOnGround;
             var canCoyoteJump = _timeSinceUngrounded < coyoteTimeAfter && allowCoyoteAfter && !_ungroundedDueToJump;

@@ -17,7 +17,7 @@ public class FMODAudioEffectInstance : EffectInstance<PlayFMODAudioEffect>
         EventReference clip = data.soundReferences[Random.Range(0, data.soundReferences.Count)];
         Vector3 position = hitPoint + hitNormal * data.soundOffset;
 
-        AudioManager.Instance.PlayOneShot(clip, position);
+        AudioManager.Instance.PlayOneShot(clip, position, false);
 
         // StartCoroutine(DisposeAfter(clip.length));
     }

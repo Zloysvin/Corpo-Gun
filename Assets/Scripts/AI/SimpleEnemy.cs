@@ -1,15 +1,25 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+enum EnemyState
+{
+    Idle,
+    Chasing,
+    Attacking
+}
+
 public class SimpleChasingEnemy : MonoBehaviour
 {
-    public float detectionRange = 10f;
-    public float attackRange = 1.5f;
-    public float attackCooldown = 2f;
+    [SerializeField] private Animator animator;
+
+    [SerializeField] private float detectionRange;
+    [SerializeField] private float attackRange;
 
     private Player player;
     private NavMeshAgent agent;
     private float lastAttackTime;
+    private EnemyState currentState = EnemyState.Idle;
+    private EnemyState previousState = EnemyState.Idle;
 
     void Start()
     {
@@ -27,7 +37,7 @@ public class SimpleChasingEnemy : MonoBehaviour
         {
             agent.SetDestination(player.GetPosition());
 
-            if (distance <= attackRange && Time.time > lastAttackTime + attackCooldown)
+            if (distance <= attackRange && Time.time > lastAttackTime)
             {
                 Attack();
                 lastAttackTime = Time.time;
@@ -37,13 +47,13 @@ public class SimpleChasingEnemy : MonoBehaviour
         {
             agent.ResetPath(); // stop moving if player is far away
         }
+
+        animator.SetFloat("Speed", agent.velocity.magnitude);
     }
 
     void Attack()
     {
-        GameManager.Instance.CurrentGameState = GameState.Extraction;
-        agent.ResetPath(); // stop while attacking
-        Debug.Log("Enemy attacks!");
-        // Add damage logic or animation trigger here
+        animator.SetBool("isShooting", true);
+        agent.ResetPath();
     }
 }

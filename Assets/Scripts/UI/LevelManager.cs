@@ -15,13 +15,27 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private SkinnedMeshRenderer elevatorMesh;
     private EventInstance bgm;
 
+    private int numberOfEnemies = 0;
+
     public void Start()
     {
-        bgm = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.gameBGM);
+        Debug.Log("LevelManager Start");
+        numberOfEnemies = GameObject.FindGameObjectsWithTag("Enemy").Length;
+
+        bgm = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.gameBGM, true);
         bgm.start();
         bgm.setParameterByName("MX Param", 0);
         levelRoot.SetActive(false);
         StartCoroutine(LevelStart());
+    }
+
+    public void OnEnemyKilled()
+    {
+        numberOfEnemies--;
+        if (numberOfEnemies <= 0)
+        {
+            GameManager.Instance.CurrentGameState = GameState.Extraction;
+        }
     }
 
     public void StartExtraction()
@@ -78,7 +92,8 @@ public class LevelManager : MonoBehaviour
 
     private IEnumerator ElevatorEvent(float start, float end, GameState nextState)
     {
-        float duration = 3f;
+        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.elevatorSound, elevatorMesh.transform.position, false);
+        float duration = 3.4f;
         float elapsed = 0f;
 
         while (elapsed < duration)

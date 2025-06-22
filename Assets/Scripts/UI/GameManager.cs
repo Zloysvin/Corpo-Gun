@@ -14,9 +14,8 @@ public class GameManager : MonoBehaviour
 {
     // ------------------ SCENE / GAMESTATE MANAGEMENT ------------------ //
 
-
-
     private float volume = 1f;
+    private float sfxVolume = 1f;
     public string agentName = "Agent";
     public int difficulty = 1;
 
@@ -85,5 +84,27 @@ public class GameManager : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    public float GetVolume()
+    {
+        return volume;
+    }
+
+    public void SetVolume(float value)
+    {
+        volume = Mathf.Clamp01(value);
+        AudioManager.Instance.OnVolumeChanged(volume);
+    }
+
+    public float GetSFXVolume()
+    {
+        return sfxVolume;
+    }
+
+    public void SetSFXVolume(float value)
+    {
+        sfxVolume = Mathf.Clamp01(value);
+        AudioManager.Instance.OnSFXVolumeChanged(sfxVolume);
     }
 }

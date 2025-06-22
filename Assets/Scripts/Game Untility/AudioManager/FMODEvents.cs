@@ -13,6 +13,7 @@ public class FMODEvents : MonoBehaviour
     public EventReference pistolShotSound;
     public EventReference smgShotSound;
     public EventReference suitDXSound;
+    public EventReference elevatorSound;
 
     private static FMODEvents _instance;
 

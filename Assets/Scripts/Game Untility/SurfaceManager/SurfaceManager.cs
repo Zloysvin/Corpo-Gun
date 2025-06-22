@@ -60,7 +60,7 @@ public class SurfaceManager : MonoBehaviour
                     {
                         foreach (EffectBase effect in typeEffect.effects)
                         {
-                            effect.CreateInstance(hitPoint, hitNormal);
+                            // effect.CreateInstance(hitPoint, hitNormal);
                         }
                     }
                 }
@@ -74,7 +74,7 @@ public class SurfaceManager : MonoBehaviour
                     {
                         foreach (EffectBase effect in typeEffect.effects)
                         {
-                            effect.CreateInstance(hitPoint, hitNormal);
+                            // effect.CreateInstance(hitPoint, hitNormal);
                         }
                     }
                 }
