@@ -50,12 +50,12 @@ public class Player : MonoBehaviour
 
         var characterInput = new CharacterInput
         {
-            Rotation    = playerCamera.transform.rotation,
-            Move        = input.Move.ReadValue<Vector2>(),
-            Jump        = input.Jump.WasPressedThisFrame(),
+            Rotation = playerCamera.transform.rotation,
+            Move = input.Move.ReadValue<Vector2>(),
+            Jump = input.Jump.WasPressedThisFrame(),
             JumpSustain = input.Jump.IsPressed(),
-            Crouch      = toggleCrouch ? input.Crouch.WasPressedThisFrame() ? InputType.ToggleOn : InputType.ToggleOff : input.Crouch.IsPressed() ? InputType.Held : InputType.Off,
-            Sprint      = toggleSprint ? input.Sprint.WasPressedThisFrame() ? InputType.ToggleOn : InputType.ToggleOff : input.Sprint.IsPressed() ? InputType.Held : InputType.Off
+            Crouch = toggleCrouch ? input.Crouch.WasPressedThisFrame() ? InputType.ToggleOn : InputType.ToggleOff : input.Crouch.IsPressed() ? InputType.Held : InputType.Off,
+            Sprint = toggleSprint ? input.Sprint.WasPressedThisFrame() ? InputType.ToggleOn : InputType.ToggleOff : input.Sprint.IsPressed() ? InputType.Held : InputType.Off
         };
 
         playerCharacter.UpdateInput(characterInput);
@@ -80,5 +80,9 @@ public class Player : MonoBehaviour
     {
         playerCharacter.SetPosition(position);
     }
-
+    
+    public Vector3 GetPosition()
+    {
+        return playerCharacter.GetPosition();
+    }
 }

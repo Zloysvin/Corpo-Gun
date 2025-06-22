@@ -5,6 +5,7 @@ public class GameManager : MonoBehaviour
 {
     // ------------------ SCENE / GAMESTATE MANAGEMENT ------------------ //
 
+    private float volume = 1f;
     public string agentName = "Agent";
     public int difficulty = 1;
 

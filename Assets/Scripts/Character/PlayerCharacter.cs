@@ -348,4 +348,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         }
     }
 
+    public Vector3 GetPosition()
+    {
+        return motor.TransientPosition;
+    }
 }
