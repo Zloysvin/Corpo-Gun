@@ -59,7 +59,7 @@ public class LevelManager : MonoBehaviour
             "Testing suit integrity...",
             "All systems nominal...",
             "Agent " + GameManager.Instance.agentName + " is ready for deployment.",
-        }, false, true, () =>
+        }, false, true, 40, onFinshed: () =>
         {
             tempCam.gameObject.SetActive(false);
             levelRoot.SetActive(true);
@@ -84,7 +84,7 @@ public class LevelManager : MonoBehaviour
             "Mission complete.",
             "Returning to base.",
             "Agent " + GameManager.Instance.agentName + ", you are dismissed."
-        }, false, true, () =>
+        }, false, true, 40, onFinshed: () =>
         {
             GameManager.Instance.LoadMainMenu();
         });
@@ -106,5 +106,42 @@ public class LevelManager : MonoBehaviour
 
         elevatorMesh.SetBlendShapeWeight(0, end);
         GameManager.Instance.CurrentGameState = nextState;
+    }
+
+    IEnumerator LevelFailed()
+    {
+        GameManager.Instance.CurrentGameState = GameState.Cutscene;
+        yield return StartCoroutine(HUD.Instance.FadeGroup(levelCanvasGroup, 0f, 1f, fadeDuration));
+        bgm.stop(STOP_MODE.ALLOWFADEOUT);
+        bgm.release();
+        levelRoot.SetActive(false);
+        tempCam.gameObject.SetActive(true);
+        typeWriter.StartTypeWriter(new List<string>
+        {
+            "          .                                                      .",
+            "        .n                   .                 .                  n.",
+            "  .   .dP                  dP                   9b                 9b.    .",
+            " 4    qXb         .       dX                     Xb       .        dXp     t",
+            "dX.    9Xb      .dXb    __                         __    dXb.     dXP     .Xb",
+            "9XXb._       _.dXXXXb dXXXXbo.                 .odXXXXb dXXXXb._       _.dXXP",
+            " 9XXXXXXXXXXXXXXXXXXXVXXXXXXXXOo.           .oOXXXXXXXXVXXXXXXXXXXXXXXXXXXXP",
+            "  `9XXXXXXXXXXXXXXXXXXXXX'~   ~`OOO8b   d8OOO'~   ~`XXXXXXXXXXXXXXXXXXXXXP'",
+            "    `9XXXXXXXXXXXP' `9XX'   GAME   `98v8P'   OVER   `XXP' `9XXXXXXXXXXXP'",
+            "        ~~~~~~~       9X.          .db|db.          .XP       ~~~~~~~",
+            "                        )b.  .dbo.dP'`v'`9b.odb.  .dX(",
+            "                      ,dXXXXXXXXXXXb     dXXXXXXXXXXXb.",
+            "                     dXXXXXXXXXXXP'   .   `9XXXXXXXXXXXb",
+            "                    dXXXXXXXXXXXXb   d|b   dXXXXXXXXXXXXb",
+            "                    9XXb'   `XXXXXb.dX|Xb.dXXXXX'   `dXXP",
+            "                     `'      9XXXXXX(   )XXXXXXP      `'",
+            "                              XXXX X.`v'.X XXXX",
+            "                              XP^X'`b   d'`X^XX",
+            "                              X. 9  `   '  P )X",
+            "                              `b  `       '  d'",
+            "                               `             '"
+        }, false, true, 200, onFinshed: () =>
+        {
+            GameManager.Instance.LoadMainMenu();
+        });
     }
 }

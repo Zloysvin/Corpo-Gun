@@ -8,14 +8,12 @@ using UnityEngine;
 
 public class TypeWriter : MonoBehaviour
 {
-    [SerializeField] private int CharactersPerSecond;
     [SerializeField] private TMP_Text textBox;
     public event Action OnTypeWriterCleared;
     public event Action<int> OnLineFinished;
     public event Action OnTypeWriterFinished;
     public bool PlaySound = false;
     private Coroutine typewriter;
-    private WaitForSeconds delay;
     private int currentStringIndex = 0;
     private int currentLineIndex = 0;
     private string currentString = "";
@@ -26,17 +24,22 @@ public class TypeWriter : MonoBehaviour
 
     private void Awake()
     {
-        delay = new WaitForSeconds(1f / CharactersPerSecond);
         typingSound = RuntimeManager.CreateInstance(FMODEvents.Instance.consoleTypingSound);
         typingSound.setParameterByName("Volume", 0.5f);
     }
 
-    public void StartTypeWriter(List<string> texts, bool shouldClearOnNewLine, bool clearCurrent, Action onFinshed = null)
+    public void StartTypeWriter(List<string> texts, bool shouldClearOnNewLine, bool clearCurrent, int charactersPerSecond, float delayBetweenLines = -1, Action onFinshed = null)
     {
         if (clearCurrent)
             SkipAll();
+
+        WaitForSeconds delay = new WaitForSeconds(1f / charactersPerSecond);
+        WaitForSeconds delayBetweenLinesWait = new(delayBetweenLines);
+        if (delayBetweenLines < 0)
+            delayBetweenLinesWait = delay;
+        
         currentTexts = texts;
-        var num = TypeWriteCoroutine(shouldClearOnNewLine, onFinshed);
+        var num = TypeWriteCoroutine(shouldClearOnNewLine, delay, delayBetweenLinesWait, onFinshed);
         typewriter = StartCoroutine(num);
     }
 
@@ -55,7 +58,7 @@ public class TypeWriter : MonoBehaviour
         }
     }
 
-    private IEnumerator TypeWriteCoroutine(bool shouldClear, Action onFinished = null)
+    private IEnumerator TypeWriteCoroutine(bool shouldClear, WaitForSeconds delay, WaitForSeconds delayBetweenLines, Action onFinished = null)
     {
         isTyping = true;
         StartCoroutine(TypingSoundLoop());
@@ -81,18 +84,17 @@ public class TypeWriter : MonoBehaviour
             }
 
             currentStringIndex = 0;
-            if (shouldClear)
-            {
-                // ClearTypeWriter();
-            }
-            else
-            {
-                currentLineIndex++;
-                textBox.text += "\n";
-                OnLineFinished?.Invoke(currentLineIndex);
-            }
 
-            yield return delay;
+            yield return delayBetweenLines;
+
+            if (shouldClear)
+                textBox.text = string.Empty;
+            else
+                textBox.text += "\n";
+
+            currentLineIndex++;
+            OnLineFinished?.Invoke(currentLineIndex);
+
         }
 
         isTyping = false;
