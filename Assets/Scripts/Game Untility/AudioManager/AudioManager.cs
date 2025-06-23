@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 public class AudioManager : MonoBehaviour
 {
-    private List<EventInstance> _activeInstances = new List<EventInstance>();
-    private EventInstance bgmInstance;
+    private List<EventInstance> _activeBGMInstances = new List<EventInstance>();
+    private List<EventInstance> _activeSFXInstances = new List<EventInstance>();
 
     private static AudioManager _instance;
 
@@ -33,26 +33,42 @@ public class AudioManager : MonoBehaviour
         Instance = this;
     }
 
-    public void PlayOneShot(EventReference soundReference, Vector3 position)
-    {
-        RuntimeManager.PlayOneShot(soundReference, position);
-    }
-
-    public void PlayOneShot(EventReference soundReference)
-    {
-        RuntimeManager.PlayOneShot(soundReference);
-    }
-
-    public EventInstance CreateEventInstance(EventReference soundReference)
+    public void PlayOneShot(EventReference soundReference, Vector3 position, bool isBGM)
     {
         EventInstance instance = RuntimeManager.CreateInstance(soundReference);
-        _activeInstances.Add(instance);
+        instance.set3DAttributes(RuntimeUtils.To3DAttributes(position));
+        instance.setVolume(isBGM ? GameManager.Instance.GetVolume() : GameManager.Instance.GetSFXVolume());
+        instance.start();
+        instance.release();
+    }
+
+    public void PlayOneShot(EventReference soundReference, bool isBGM)
+    {
+        EventInstance instance = RuntimeManager.CreateInstance(soundReference);
+        instance.setVolume(isBGM ? GameManager.Instance.GetVolume() : GameManager.Instance.GetSFXVolume());
+        instance.start();
+        instance.release();
+    }
+
+    public EventInstance CreateEventInstance(EventReference soundReference, bool isBGM)
+    {
+        EventInstance instance = RuntimeManager.CreateInstance(soundReference);
+        instance.setVolume(isBGM ? GameManager.Instance.GetVolume() : GameManager.Instance.GetSFXVolume());
+        if (isBGM)
+            _activeBGMInstances.Add(instance);
+        else
+            _activeSFXInstances.Add(instance);
         return instance;
     }
 
     private void CleanUp()
     {
-        foreach (var instance in _activeInstances)
+        foreach (var instance in _activeBGMInstances)
+        {
+            instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            instance.release();
+        }
+        foreach (var instance in _activeSFXInstances)
         {
             instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             instance.release();
@@ -61,29 +77,38 @@ public class AudioManager : MonoBehaviour
 
     public void RemoveInstance(EventInstance instance)
     {
-        if (_activeInstances.Contains(instance))
+        if (_activeBGMInstances.Contains(instance))
         {
             instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
             instance.release();
-            _activeInstances.Remove(instance);
+            _activeBGMInstances.Remove(instance);
+        }
+        else if (_activeSFXInstances.Contains(instance))
+        {
+            instance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+            instance.release();
+            _activeSFXInstances.Remove(instance);
         }
     }
 
-    public void StartMusicCore(string musicName)
+    public void OnVolumeChanged(float volume)
     {
-        if (bgmInstance.isValid())
+        foreach (var instance in _activeBGMInstances)
         {
-            bgmInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            bgmInstance.release();
+            instance.setVolume(volume);
         }
-        bgmInstance = RuntimeManager.CreateInstance(musicName);
-        bgmInstance.start();
+    }
+
+    public void OnSFXVolumeChanged(float sfxVolume)
+    {
+        foreach (var instance in _activeSFXInstances)
+        {
+            instance.setVolume(sfxVolume);
+        }
     }
 
     private void OnDestroy()
     {
-        bgmInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-        bgmInstance.release();
         CleanUp();
     }
 }

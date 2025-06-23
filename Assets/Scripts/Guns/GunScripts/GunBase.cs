@@ -1,10 +1,14 @@
 using System.Collections;
+using FMOD.Studio;
+using FMODUnity;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
 public abstract class GunBase : MonoBehaviour
 {
     public GunType type;
+    [SerializeField] private Animator animator;
     [SerializeField] private ImpactType impactType;
     [SerializeField] private string id;
     [SerializeField] private Vector3 spawnPoint;
@@ -12,19 +16,24 @@ public abstract class GunBase : MonoBehaviour
     [SerializeField] private ShootConfigurationScriptableObject shootConfig;
     [SerializeField] private TrailConfigScriptableObject trailConfig;
     [SerializeField] private Transform trailStart;
+    [SerializeField] private float shotDelay = 0.1f;
+    [SerializeField] private float totalDelay = 0.5f;
 
     private Transform raycastOrigin;
-    private float lastShootTime;
     private ObjectPool<TrailRenderer> trailPool;
+    private EventInstance shootSound;
+    private float lastShootTime;
+    private float nextShootTime = 0f;
 
     public virtual void Initialize(Transform raycastOrigin)
     {
         gameObject.SetActive(false);
-        lastShootTime = 0f;
         trailPool = new ObjectPool<TrailRenderer>(CreateTrail);
         this.raycastOrigin = raycastOrigin;
 
         transform.localPosition = spawnPoint;
+
+        shootSound = AudioManager.Instance.CreateEventInstance(shootConfig.FireSound, false);
     }
 
     public virtual void SwitchToWeapon()
@@ -46,26 +55,34 @@ public abstract class GunBase : MonoBehaviour
 
     public virtual void Shoot()
     {
-        if (Time.time > shootConfig.FireRate + lastShootTime)
+        if (Time.time > totalDelay + lastShootTime)
         {
+            animator.SetTrigger("shoot");
             lastShootTime = Time.time;
-            fireParticleSystem.Play();
-            Vector3 shootDirection = raycastOrigin.transform.forward + new Vector3(
-                Random.Range(-shootConfig.Spread.x, shootConfig.Spread.x),
-                Random.Range(-shootConfig.Spread.y, shootConfig.Spread.y),
-                Random.Range(-shootConfig.Spread.z, shootConfig.Spread.z)
-            );
+            StartCoroutine(DelayShoot(shotDelay));
+        }
+    }
 
-            shootDirection.Normalize();
+    IEnumerator DelayShoot(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        shootSound.start();
+        // fireParticleSystem.Play();
+        Vector3 shootDirection = raycastOrigin.transform.forward + new Vector3(
+            Random.Range(-shootConfig.Spread.x, shootConfig.Spread.x),
+            Random.Range(-shootConfig.Spread.y, shootConfig.Spread.y),
+            Random.Range(-shootConfig.Spread.z, shootConfig.Spread.z)
+        );
 
-            if (Physics.Raycast(raycastOrigin.transform.position, shootDirection, out RaycastHit hit, float.MaxValue, shootConfig.HitMask))
-            {
-                StartCoroutine(PlayTrail(trailStart.position, hit.point, hit));
-            }
-            else
-            {
-                StartCoroutine(PlayTrail(trailStart.position, raycastOrigin.transform.position + (shootDirection * trailConfig.missDistance), new RaycastHit()));
-            }
+        shootDirection.Normalize();
+
+        if (Physics.Raycast(raycastOrigin.transform.position, shootDirection, out RaycastHit hit, float.MaxValue, shootConfig.HitMask, QueryTriggerInteraction.Collide))
+        {
+            StartCoroutine(PlayTrail(trailStart.position, hit.point, hit));
+        }
+        else
+        {
+            StartCoroutine(PlayTrail(trailStart.position, raycastOrigin.transform.position + (shootDirection * trailConfig.missDistance), new RaycastHit()));
         }
     }
 
@@ -93,7 +110,9 @@ public abstract class GunBase : MonoBehaviour
 
         if (hit.collider != null)
         {
-            SurfaceManager.Instance.HandleImpact(hit.transform.gameObject, end, hit.normal, impactType, 0);
+            Entity entity = hit.collider.GetComponent<Entity>();
+            entity?.TakeDamage(Random.Range(shootConfig.damage.x, shootConfig.damage.y));
+            // SurfaceManager.Instance.HandleImpact(hit.transform.gameObject, end, hit.normal, impactType, 0);
         }
         else
         {

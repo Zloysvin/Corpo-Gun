@@ -20,16 +20,17 @@ public class Menu : MonoBehaviour
 
     void Start()
     {
-        menuBGM = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuBGM);
+        GameManager.Instance.agentName = "Alpha";
+        menuBGM = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuBGM, true);
         menuBGM.start();
-        typingSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.typingSound);
+        typingSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.typingSound, false);
         cmds = new Dictionary<string, Action<List<string>>> {
             { "help", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> help",
                     "Game Help",
                     "play                                | Starts the game",
-                    "settings                            | Prints the setting commands",
+                    "settings                            | Prints all setting commands",
                     "exit                                | Exits the game",
                     "credits                             | Prints the credits",
                     "help                                | Prints this message",
@@ -39,16 +40,20 @@ public class Menu : MonoBehaviour
                     "theme <theme>                       | Changes the theme to the specified one",
                     "",
                     "Agent Help",
-                    "agent:info                          | Prints agent explanation",
-                    "agent:current                       | Prints the current agent",
+                    "agent:info                          | Agent details",
+                    "agent:current                       | Prints information about the current agent",
                     "agent:list                          | Lists all available agents currently active",
                     "agent:select <agent>                | Selects the specified agent",
+                    "",
+                    "Stats",
+                    "Agent:                     " + GameManager.Instance.agentName,
+                    "Difficulty Rating:         " + GameManager.Instance.difficulty,
                     // "", Thought these might be cool
                     // "System Controls",
                     // "echo <message>                      | Echoes the message back to you",
                     // "clear                               | Clears the terminal",
                     // "",
-                }, false, true)
+            }, false, true)
             },
 
             // ---------------------- Game Help ----------------------//
@@ -79,6 +84,7 @@ public class Menu : MonoBehaviour
                         "Saving game state...",
                         "Goodbye! Unless this is a web version then no this won't do anything."
                     }, false, true, () => {
+                        cmdDisabled = false;
                         GameManager.Instance.ExitGame();
                     });
                 }},
@@ -87,12 +93,55 @@ public class Menu : MonoBehaviour
                     "> settings",
                     "Settings",
                     "settings:volume <value>             | Sets the volume to the specified value (0-100)",
+                    "settings:sfx_volume <value>          | Sets the sound effects volume to the specified value (0-100)",
                     // "settings:toggle_sprint              | Toggles sprinting on or off",
                     // "settings:toggle_crouch              | Toggles crouching on or off",
                     // "settings:toggle_lean                | Toggles leaning on or off",
                     // "settings:toggle_camera_spring       | Toggles camera spring on or off",
                     // "settings:toggle_vignette            | Toggles vignette on or off",
-                }, false, true)
+            }, false, true)
+            },
+            { "settings:volume", args =>
+                {
+                    if (args.Count < 2 || !float.TryParse(args[1], out float volume) || volume < 0f || volume > 100f)
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> settings:volume",
+                            "Usage: settings:volume <value> (0-100)",
+                            "Current volume: " + GameManager.Instance.GetSFXVolume() * 100f
+                        }, false, true);
+                        return;
+                    }
+
+                    GameManager.Instance.SetVolume(volume / 100f);
+                    typeWriter.StartTypeWriter(new List<string>()
+                    {
+                        "> settings:volume " + volume,
+                        "Volume set to " + volume + "%"
+                    }, false, true);
+                }
+            },
+            { "settings:sfx_volume", args =>
+                {
+                    if (args.Count < 2 || !float.TryParse(args[1], out float sfxVolume) || sfxVolume < 0f || sfxVolume > 100f)
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> settings:sfx_volume",
+                            "Usage: settings:sfx_volume <value> (0-100)",
+                            "Current SFX volume: " + GameManager.Instance.GetSFXVolume() * 100f
+                        }, false, true);
+                        return;
+                    }
+
+                    GameManager.Instance.SetSFXVolume(sfxVolume / 100f);
+                    typeWriter.StartTypeWriter(new List<string>()
+                    {
+                        "> settings:sfx_volume " + sfxVolume,
+                        "SFX Volume set to " + sfxVolume + "%"
+                    }, false, true);
+                }
             },
             { "credits", args => typeWriter.StartTypeWriter(new List<string>()
                 {
@@ -170,23 +219,79 @@ public class Menu : MonoBehaviour
             { "agent:current", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> agent:current",
-                    "Current agent: [Agent Name]",
+                    "Current agent: " + GameManager.Instance.agentName,
                 }, false, true)
             },
             { "agent:list", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> agent:list",
                     "Available agents:",
-                    "Alpha:         Status: Currently active",
-                    "Bravo:         Status: Diseased",
-                    "Echo:          Status: Currently active",
-                    "Romeo:         Status: Currently active",
+                    "Alpha:      Status: Currently active        | Level Difficulty: 1",
+                    "Bravo:      Status: Diseased                | Level Difficulty: 2",
+                    "Echo:       Status: Currently inactive      | Level Difficulty: 3",
+                    "Romeo:      Status: Currently inactive      | Level Difficulty: 4"
                 }, false, true)
             },
-            { "agent:select", args => typeWriter.StartTypeWriter(new List<string>()
+            { "agent:select", args =>
                 {
-                    "> agent:select " + args
-                }, false, true)
+                    if (args.Count < 2)
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> agent:select",
+                            "Usage: agent:select <agent>"
+                        }, false, true);
+                        return;
+                    }
+
+                    string agentName = args[1].ToLower();
+                    switch (agentName)
+                    {
+                        case "alpha":
+                            // GameManager.Instance.agentName = "Alpha";
+                            // GameManager.Instance.difficulty = 1;
+                            typeWriter.StartTypeWriter(new List<string>()
+                                {
+                                    "> agent:select alpha",
+                                    "Already selected Alpha agent."
+                                }, false, true);
+                            break;
+                        case "bravo":
+                            // GameManager.Instance.agentName = "Bravo";
+                            // GameManager.Instance.difficulty = 2;
+                            typeWriter.StartTypeWriter(new List<string>()
+                                {
+                                    "> agent:select bravo",
+                                    "Error: Agent is inoperable"
+                                }, false, true);
+                            break;
+                        case "echo":
+                            // GameManager.Instance.agentName = "Echo";
+                            // GameManager.Instance.difficulty = 3;
+                            typeWriter.StartTypeWriter(new List<string>()
+                                {
+                                    "> agent:select echo",
+                                    "Error: Agent is currently inactive"
+                                }, false, true);
+                            break;
+                        case "romeo":
+                            // GameManager.Instance.agentName = "Romeo";
+                            // GameManager.Instance.difficulty = 4;
+                            typeWriter.StartTypeWriter(new List<string>()
+                                {
+                                    "> agent:select romeo",
+                                    "Error: Agent is currently inactive"
+                                }, false, true);
+                            break;
+                        default:
+                            typeWriter.StartTypeWriter(new List<string>()
+                                {
+                                    "> agent:select",
+                                    "Usage: agent:select <agent>"
+                                }, false, true);
+                            break;
+                    }
+                } 
             }
         };
 

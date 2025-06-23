@@ -1,9 +1,25 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public enum GameState
+{
+    Menu,
+    Playing,
+    Extraction,
+    Paused,
+    Cutscene,
+}
+
 public class GameManager : MonoBehaviour
 {
     // ------------------ SCENE / GAMESTATE MANAGEMENT ------------------ //
+
+    private float volume = 1f;
+    private float sfxVolume = 1f;
+    public string agentName = "Agent";
+    public int difficulty = 1;
+
+    public GameState CurrentGameState = GameState.Menu;
 
     private static GameManager _instance;
 
@@ -39,7 +55,13 @@ public class GameManager : MonoBehaviour
     public void LoadGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-        Debug.Log("Loading game...");
+        CurrentGameState = GameState.Cutscene;
+    }
+
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene(0);
+        CurrentGameState = GameState.Menu;
     }
 
     public void ExitGame()
@@ -53,5 +75,36 @@ public class GameManager : MonoBehaviour
         {
             // bootScreen.StartGame();
         }
+    }
+
+    public bool IsGameInPlay()
+    {
+        if (CurrentGameState == GameState.Playing || CurrentGameState == GameState.Extraction)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public float GetVolume()
+    {
+        return volume;
+    }
+
+    public void SetVolume(float value)
+    {
+        volume = Mathf.Clamp01(value);
+        AudioManager.Instance.OnVolumeChanged(volume);
+    }
+
+    public float GetSFXVolume()
+    {
+        return sfxVolume;
+    }
+
+    public void SetSFXVolume(float value)
+    {
+        sfxVolume = Mathf.Clamp01(value);
+        AudioManager.Instance.OnSFXVolumeChanged(sfxVolume);
     }
 }

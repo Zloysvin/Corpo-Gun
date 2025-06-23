@@ -7,7 +7,8 @@ public class PlayerAction : MonoBehaviour
 
     void Update()
     {
-        // Todo improve
+        if (!GameManager.Instance.IsGameInPlay()) return;
+
         if (Mouse.current.leftButton.isPressed && gunSelector.activeGun != null)
         {
             gunSelector.activeGun.Shoot();

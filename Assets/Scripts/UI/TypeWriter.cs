@@ -74,7 +74,7 @@ public class TypeWriter : MonoBehaviour
                     break;
                 }
                 // Skip the space if the next character is also a space
-                if (!(c == ' ' && textBox.text.Length > currentStringIndex + 1 && currentString[currentStringIndex + 1] == ' '))
+                if (!(c == ' ' && currentStringIndex + 1 < currentString.Length && currentString[currentStringIndex + 1] == ' '))
                 {
                     yield return delay;
                 }
@@ -83,7 +83,7 @@ public class TypeWriter : MonoBehaviour
             currentStringIndex = 0;
             if (shouldClear)
             {
-                ClearTypeWriter();
+                // ClearTypeWriter();
             }
             else
             {
