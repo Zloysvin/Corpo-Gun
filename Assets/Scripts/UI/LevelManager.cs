@@ -51,6 +51,7 @@ public class LevelManager : MonoBehaviour
     public void EndLevel(ElevatorExtraction elevator)
     {
         StartCoroutine(LevelEndRoutine(elevator));
+        GameManager.Instance.OnLevelWon();
     }
 
     IEnumerator LevelStart(ElevatorExtraction startingElevator)
@@ -62,7 +63,7 @@ public class LevelManager : MonoBehaviour
             "Booting weapon systems...",
             "Testing suit integrity...",
             "All systems nominal...",
-            "Agent " + GameManager.Instance.agentName + " is ready for deployment.",
+            "Agent " + GameManager.Instance.CurrentLevel.id + " is ready for deployment.",
         }, false, true, 40, onFinshed: () =>
         {
             StartCoroutine(HUD.Instance.FadeGroup(levelCanvasGroup, 1f, 0f, fadeDuration));
@@ -84,7 +85,7 @@ public class LevelManager : MonoBehaviour
         {
             "Mission complete.",
             "Returning to base.",
-            "Agent " + GameManager.Instance.agentName + ", you are dismissed."
+            "Agent " + GameManager.Instance.CurrentLevel.id + ", you are dismissed."
         }, false, true, 40, onFinshed: () =>
         {
             GameManager.Instance.LoadMainMenu();

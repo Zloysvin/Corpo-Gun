@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using FMOD.Studio;
 using TMPro;
 using UnityEngine;
@@ -25,7 +26,7 @@ public class Menu : MonoBehaviour
     void Start()
     {
         StartCoroutine(BlinkCaret());
-        GameManager.Instance.agentName = "Alpha";
+        GameManager.Instance.CurrentLevel = GameManager.Instance.levelDirectory["G7225"];
         menuBGM = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuBGM, true);
         menuBGM.start();
         typingSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.typingSound, false);
@@ -51,8 +52,8 @@ public class Menu : MonoBehaviour
                     "agent:select <agent>                | Selects the specified agent",
                     "",
                     "Stats",
-                    "Agent:                     " + GameManager.Instance.agentName,
-                    "Difficulty Rating:         " + GameManager.Instance.difficulty,
+                    "Agent:                     " + GameManager.Instance.CurrentLevel.id,
+                    "Difficulty Rating:         " + GameManager.Instance.CurrentLevel.difficulty,
                     // "", Thought these might be cool
                     // "System Controls",
                     // "echo <message>                      | Echoes the message back to you",
@@ -224,18 +225,14 @@ public class Menu : MonoBehaviour
             { "agent:current", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> agent:current",
-                    "Current agent: " + GameManager.Instance.agentName,
+                    "Current agent: " + GameManager.Instance.CurrentLevel.id,
                 }, false, true, charactersPerSecond)
             },
             { "agent:list", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> agent:list",
                     "Available agents:",
-                    "Alpha:      Status: Currently active        | Level Difficulty: 1",
-                    "Bravo:      Status: Diseased                | Level Difficulty: 2",
-                    "Echo:       Status: Currently inactive      | Level Difficulty: 3",
-                    "Romeo:      Status: Currently inactive      | Level Difficulty: 4"
-                }, false, true, charactersPerSecond)
+                }.Concat(GameManager.Instance.levelDirectory.Values.Select(obj => obj.GetMenuString())).ToList(), false, true, charactersPerSecond)
             },
             { "agent:select", args =>
                 {
@@ -249,58 +246,59 @@ public class Menu : MonoBehaviour
                         return;
                     }
 
-                    string agentName = args[1].ToLower();
-                    switch (agentName)
+                    string agentName = args[1].ToUpper();
+                    if (GameManager.Instance.levelDirectory.TryGetValue(agentName, out Level lvl))
                     {
-                        case "alpha":
-                            // GameManager.Instance.agentName = "Alpha";
-                            // GameManager.Instance.difficulty = 1;
+                        if (lvl.id == GameManager.Instance.CurrentLevel.id)
+                        {
                             typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select alpha",
-                                    "Already selected Alpha agent."
-                                }, false, true, charactersPerSecond);
-                            break;
-                        case "bravo":
-                            // GameManager.Instance.agentName = "Bravo";
-                            // GameManager.Instance.difficulty = 2;
+                            {
+                                "> agent:select " + agentName,
+                                "Agent " + agentName + " is already selected"
+                            }, false, true, charactersPerSecond);
+                            return;
+                        }
+                        else if (lvl.isUnlocked)
+                        {
                             typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select bravo",
-                                    "Error: Agent is inoperable"
-                                }, false, true, charactersPerSecond);
-                            break;
-                        case "echo":
-                            // GameManager.Instance.agentName = "Echo";
-                            // GameManager.Instance.difficulty = 3;
+                            {
+                                "> agent:select " + agentName,
+                                "Agent " + agentName + " has been selected"
+                            }, false, true, charactersPerSecond);
+                            return;
+                        }
+                        else
+                        {
                             typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select echo",
-                                    "Error: Agent is currently inactive"
-                                }, false, true, charactersPerSecond);
-                            break;
-                        case "romeo":
-                            // GameManager.Instance.agentName = "Romeo";
-                            // GameManager.Instance.difficulty = 4;
-                            typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select romeo",
-                                    "Error: Agent is currently inactive"
-                                }, false, true, charactersPerSecond);
-                            break;
-                        default:
-                            typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select",
-                                    "Usage: agent:select <agent>"
-                                }, false, true, charactersPerSecond);
-                            break;
+                            {
+                                "> agent:select " + agentName,
+                                "Agent " + agentName + " is currently inactive! Complete level using agent " + lvl.requiredId + " first."
+                            }, false, true, charactersPerSecond);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> agent:select " + agentName,
+                            "Agent " + agentName + " does not exist"
+                        }, false, true, charactersPerSecond);
+                        return;
                     }
                 }
             }
         };
 
-        typeWriter.StartTypeWriter(new List<string>() { "Type 'Help' for commands." }, false, true, charactersPerSecond);
+        // We just came from a level
+        if (GameManager.Instance.exitedLevel)
+        {
+
+        }
+        else
+        {
+            typeWriter.StartTypeWriter(new List<string>() { "Type 'Help' for commands." }, false, true, charactersPerSecond);
+        }
     }
 
     void Update()
