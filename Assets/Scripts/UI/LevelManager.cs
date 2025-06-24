@@ -10,23 +10,27 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private CanvasGroup levelCanvasGroup;
     [SerializeField] private TypeWriter typeWriter;
     [SerializeField] private float fadeDuration = 1f;
-    [SerializeField] private GameObject levelRoot;
-    [SerializeField] private Camera tempCam;
-    [SerializeField] private SkinnedMeshRenderer elevatorMesh;
     private EventInstance bgm;
-
+    private Player player;
     private int numberOfEnemies = 0;
 
     public void Start()
     {
-        Debug.Log("LevelManager Start");
+        player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<Player>();
+
+        ElevatorExtraction[] elevatorsInLevel = FindObjectsByType<ElevatorExtraction>(FindObjectsSortMode.None);
+        foreach (var elevator in elevatorsInLevel)
+            elevator.SetLevelManager(this);
+        
+        ElevatorExtraction startElevator = elevatorsInLevel[Random.Range(0, elevatorsInLevel.Length)];
+        startElevator.SetPlayerPosition(player, false);
+        
         numberOfEnemies = GameObject.FindGameObjectsWithTag("Enemy").Length;
 
         bgm = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.gameBGM, true);
         bgm.start();
         bgm.setParameterByName("MX Param", 0);
-        levelRoot.SetActive(false);
-        StartCoroutine(LevelStart());
+        StartCoroutine(LevelStart(startElevator));
     }
 
     public void OnEnemyKilled()
@@ -44,12 +48,13 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.CurrentGameState = GameState.Extraction;
     }
 
-    public void EndLevel()
+    public void EndLevel(ElevatorExtraction elevator)
     {
-        StartCoroutine(LevelEndRoutine());
+        StartCoroutine(LevelEndRoutine(elevator));
+        GameManager.Instance.OnLevelWon();
     }
 
-    IEnumerator LevelStart()
+    IEnumerator LevelStart(ElevatorExtraction startingElevator)
     {
         yield return new WaitForSeconds(3f);
         typeWriter.StartTypeWriter(new List<string>
@@ -58,53 +63,66 @@ public class LevelManager : MonoBehaviour
             "Booting weapon systems...",
             "Testing suit integrity...",
             "All systems nominal...",
-            "Agent " + GameManager.Instance.agentName + " is ready for deployment.",
-        }, false, true, () =>
+            "Agent " + GameManager.Instance.CurrentLevel.id + " is ready for deployment.",
+        }, false, true, 40, onFinshed: () =>
         {
-            tempCam.gameObject.SetActive(false);
-            levelRoot.SetActive(true);
             StartCoroutine(HUD.Instance.FadeGroup(levelCanvasGroup, 1f, 0f, fadeDuration));
             HUD.Instance.ShowHUD();
-            StartCoroutine(ElevatorEvent(0f, 100f, GameState.Playing));
+            StartCoroutine(startingElevator.ElevatorEvent(0f, 100f, GameState.Playing));
         });
         yield return null;
     }
 
-    IEnumerator LevelEndRoutine()
+    IEnumerator LevelEndRoutine(ElevatorExtraction elevator)
     {
         GameManager.Instance.CurrentGameState = GameState.Cutscene;
         StartCoroutine(HUD.Instance.FadeGroup(levelCanvasGroup, 0f, 1f, fadeDuration));
-        yield return StartCoroutine(ElevatorEvent(100f, 0f, GameState.Cutscene));
+        yield return StartCoroutine(elevator.ElevatorEvent(100f, 0f, GameState.Cutscene));
         bgm.stop(STOP_MODE.ALLOWFADEOUT);
         bgm.release();
-        levelRoot.SetActive(false);
-        tempCam.gameObject.SetActive(true);
         typeWriter.StartTypeWriter(new List<string>
         {
             "Mission complete.",
             "Returning to base.",
-            "Agent " + GameManager.Instance.agentName + ", you are dismissed."
-        }, false, true, () =>
+            "Agent " + GameManager.Instance.CurrentLevel.id + ", you are dismissed."
+        }, false, true, 40, onFinshed: () =>
         {
             GameManager.Instance.LoadMainMenu();
         });
     }
 
-    private IEnumerator ElevatorEvent(float start, float end, GameState nextState)
+    IEnumerator LevelFailed()
     {
-        AudioManager.Instance.PlayOneShot(FMODEvents.Instance.elevatorSound, elevatorMesh.transform.position, false);
-        float duration = 3.4f;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
+        GameManager.Instance.CurrentGameState = GameState.Cutscene;
+        yield return StartCoroutine(HUD.Instance.FadeGroup(levelCanvasGroup, 0f, 1f, fadeDuration));
+        bgm.stop(STOP_MODE.ALLOWFADEOUT);
+        bgm.release();
+        typeWriter.StartTypeWriter(new List<string>
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            elevatorMesh.SetBlendShapeWeight(0, Mathf.Lerp(start, end, t));
-            yield return null;
-        }
-
-        elevatorMesh.SetBlendShapeWeight(0, end);
-        GameManager.Instance.CurrentGameState = nextState;
+            "          .                                                      .",
+            "        .n                   .                 .                  n.",
+            "  .   .dP                  dP                   9b                 9b.    .",
+            " 4    qXb         .       dX                     Xb       .        dXp     t",
+            "dX.    9Xb      .dXb    __                         __    dXb.     dXP     .Xb",
+            "9XXb._       _.dXXXXb dXXXXbo.                 .odXXXXb dXXXXb._       _.dXXP",
+            " 9XXXXXXXXXXXXXXXXXXXVXXXXXXXXOo.           .oOXXXXXXXXVXXXXXXXXXXXXXXXXXXXP",
+            "  `9XXXXXXXXXXXXXXXXXXXXX'~   ~`OOO8b   d8OOO'~   ~`XXXXXXXXXXXXXXXXXXXXXP'",
+            "    `9XXXXXXXXXXXP' `9XX'   GAME   `98v8P'   OVER   `XXP' `9XXXXXXXXXXXP'",
+            "        ~~~~~~~       9X.          .db|db.          .XP       ~~~~~~~",
+            "                        )b.  .dbo.dP'`v'`9b.odb.  .dX(",
+            "                      ,dXXXXXXXXXXXb     dXXXXXXXXXXXb.",
+            "                     dXXXXXXXXXXXP'   .   `9XXXXXXXXXXXb",
+            "                    dXXXXXXXXXXXXb   d|b   dXXXXXXXXXXXXb",
+            "                    9XXb'   `XXXXXb.dX|Xb.dXXXXX'   `dXXP",
+            "                     `'      9XXXXXX(   )XXXXXXP      `'",
+            "                              XXXX X.`v'.X XXXX",
+            "                              XP^X'`b   d'`X^XX",
+            "                              X. 9  `   '  P )X",
+            "                              `b  `       '  d'",
+            "                               `             '"
+        }, false, true, 200, onFinshed: () =>
+        {
+            GameManager.Instance.LoadMainMenu();
+        });
     }
 }

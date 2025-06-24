@@ -46,13 +46,17 @@ public class Player : Entity
 
     void Update()
     {
-        if (!GameManager.Instance.IsGameInPlay()) return;
 
         var input = _inputActions.Gameplay;
         var deltaTime = Time.deltaTime;
 
-        var cameraInput = new CameraInput { Look = input.Look.ReadValue<Vector2>() };
-        playerCamera.UpdateRotation(cameraInput);
+        if (GameManager.Instance.IsGameInPlay() || GameManager.Instance.IsCutscene())
+        {
+            var cameraInput = new CameraInput { Look = input.Look.ReadValue<Vector2>() };
+            playerCamera.UpdateRotation(cameraInput);
+        }
+
+        if (!GameManager.Instance.IsGameInPlay()) return;
 
         var characterInput = new CharacterInput
         {
@@ -82,7 +86,7 @@ public class Player : Entity
         stanceVignette.UpdateVignette(deltaTime, state.Stance);
     }
 
-    void Teleport(Vector3 position)
+    public void Teleport(Vector3 position)
     {
         playerCharacter.SetPosition(position);
     }

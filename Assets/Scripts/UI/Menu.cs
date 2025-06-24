@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using FMOD.Studio;
 using TMPro;
 using UnityEngine;
@@ -17,10 +18,15 @@ public class Menu : MonoBehaviour
     private bool cmdDisabled = false;
     private EventInstance typingSound;
     private EventInstance menuBGM;
+    private string inputBuffer = "";
+    private bool showCaret = false;
+
+    private int charactersPerSecond = 200;
 
     void Start()
     {
-        GameManager.Instance.agentName = "Alpha";
+        StartCoroutine(BlinkCaret());
+        GameManager.Instance.CurrentLevel = GameManager.Instance.levelDirectory["G7225"];
         menuBGM = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.menuBGM, true);
         menuBGM.start();
         typingSound = AudioManager.Instance.CreateEventInstance(FMODEvents.Instance.typingSound, false);
@@ -46,14 +52,14 @@ public class Menu : MonoBehaviour
                     "agent:select <agent>                | Selects the specified agent",
                     "",
                     "Stats",
-                    "Agent:                     " + GameManager.Instance.agentName,
-                    "Difficulty Rating:         " + GameManager.Instance.difficulty,
+                    "Agent:                     " + GameManager.Instance.CurrentLevel.id,
+                    "Difficulty Rating:         " + GameManager.Instance.CurrentLevel.difficulty,
                     // "", Thought these might be cool
                     // "System Controls",
                     // "echo <message>                      | Echoes the message back to you",
                     // "clear                               | Clears the terminal",
                     // "",
-            }, false, true)
+            }, false, true, charactersPerSecond)
             },
 
             // ---------------------- Game Help ----------------------//
@@ -68,7 +74,7 @@ public class Menu : MonoBehaviour
                         "Loading assets...",
                         "Initializing game state...",
                         "Please wait..."
-                    }, false, true, () => {
+                    }, false, true, charactersPerSecond, onFinshed: () => {
                         menuBGM.stop(STOP_MODE.ALLOWFADEOUT);
                         StartCoroutine(FadeOut());
                     });
@@ -83,7 +89,7 @@ public class Menu : MonoBehaviour
                         "Exiting game...",
                         "Saving game state...",
                         "Goodbye! Unless this is a web version then no this won't do anything."
-                    }, false, true, () => {
+                    }, false, true, charactersPerSecond, onFinshed: () => {
                         cmdDisabled = false;
                         GameManager.Instance.ExitGame();
                     });
@@ -99,7 +105,7 @@ public class Menu : MonoBehaviour
                     // "settings:toggle_lean                | Toggles leaning on or off",
                     // "settings:toggle_camera_spring       | Toggles camera spring on or off",
                     // "settings:toggle_vignette            | Toggles vignette on or off",
-            }, false, true)
+            }, false, true, charactersPerSecond)
             },
             { "settings:volume", args =>
                 {
@@ -110,7 +116,7 @@ public class Menu : MonoBehaviour
                             "> settings:volume",
                             "Usage: settings:volume <value> (0-100)",
                             "Current volume: " + GameManager.Instance.GetSFXVolume() * 100f
-                        }, false, true);
+                        }, false, true, charactersPerSecond);
                         return;
                     }
 
@@ -119,7 +125,7 @@ public class Menu : MonoBehaviour
                     {
                         "> settings:volume " + volume,
                         "Volume set to " + volume + "%"
-                    }, false, true);
+                    }, false, true, charactersPerSecond);
                 }
             },
             { "settings:sfx_volume", args =>
@@ -131,7 +137,7 @@ public class Menu : MonoBehaviour
                             "> settings:sfx_volume",
                             "Usage: settings:sfx_volume <value> (0-100)",
                             "Current SFX volume: " + GameManager.Instance.GetSFXVolume() * 100f
-                        }, false, true);
+                        }, false, true, charactersPerSecond);
                         return;
                     }
 
@@ -140,7 +146,7 @@ public class Menu : MonoBehaviour
                     {
                         "> settings:sfx_volume " + sfxVolume,
                         "SFX Volume set to " + sfxVolume + "%"
-                    }, false, true);
+                    }, false, true, charactersPerSecond);
                 }
             },
             { "credits", args => typeWriter.StartTypeWriter(new List<string>()
@@ -151,7 +157,7 @@ public class Menu : MonoBehaviour
                     "Resben             | Programmer, UI/UX development, Gameplay mechanics, Narrative design",
                     "Josh Bakaimis      | Sound design, Music composition, SFX",
                     "Zloysvin           | Game design, AI agents, Narrative design",
-                }, false, true)
+                }, false, true, charactersPerSecond)
             },
 
             // ---------------------- Color Help ----------------------//
@@ -167,7 +173,7 @@ public class Menu : MonoBehaviour
                             "default                             | The default theme",
                             "cybergreen                          | A cyberpunk green theme",
                             "synthblue                           | A synthwave blue theme",
-                        }, false, true);
+                        }, false, true, charactersPerSecond);
                         return;
                     }
 
@@ -178,21 +184,21 @@ public class Menu : MonoBehaviour
                             {
                                 "> theme default",
                                 "Theme set to default."
-                            }, false, true);
+                            }, false, true, charactersPerSecond);
                             break;
                         case "cybergreen":
                             typeWriter.StartTypeWriter(new List<string>()
                             {
                                 "> theme dark",
                                 "Theme set to dark."
-                            }, false, true);
+                            }, false, true, charactersPerSecond);
                             break;
                         case "synthblue":
                             typeWriter.StartTypeWriter(new List<string>()
                             {
                                 "> theme light",
                                 "Theme set to light."
-                            }, false, true);
+                            }, false, true, charactersPerSecond);
                             break;
                         default:
                             typeWriter.StartTypeWriter(new List<string>()
@@ -202,7 +208,7 @@ public class Menu : MonoBehaviour
                                 "default                             | The default theme",
                                 "cybergreen                          | A cyberpunk green theme",
                                 "synthblue                           | A synthwave blue theme",
-                            }, false, true);
+                            }, false, true, charactersPerSecond);
                             break;
                     }
                 }
@@ -214,23 +220,19 @@ public class Menu : MonoBehaviour
                 {
                     "> agent:info",
                     "Some lore on agents"
-                }, false, true)
+                }, false, true, charactersPerSecond)
             },
             { "agent:current", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> agent:current",
-                    "Current agent: " + GameManager.Instance.agentName,
-                }, false, true)
+                    "Current agent: " + GameManager.Instance.CurrentLevel.id,
+                }, false, true, charactersPerSecond)
             },
             { "agent:list", args => typeWriter.StartTypeWriter(new List<string>()
                 {
                     "> agent:list",
                     "Available agents:",
-                    "Alpha:      Status: Currently active        | Level Difficulty: 1",
-                    "Bravo:      Status: Diseased                | Level Difficulty: 2",
-                    "Echo:       Status: Currently inactive      | Level Difficulty: 3",
-                    "Romeo:      Status: Currently inactive      | Level Difficulty: 4"
-                }, false, true)
+                }.Concat(GameManager.Instance.levelDirectory.Values.Select(obj => obj.GetMenuString())).ToList(), false, true, charactersPerSecond)
             },
             { "agent:select", args =>
                 {
@@ -240,66 +242,70 @@ public class Menu : MonoBehaviour
                         {
                             "> agent:select",
                             "Usage: agent:select <agent>"
-                        }, false, true);
+                        }, false, true, charactersPerSecond);
                         return;
                     }
 
-                    string agentName = args[1].ToLower();
-                    switch (agentName)
+                    string agentName = args[1].ToUpper();
+                    if (GameManager.Instance.levelDirectory.TryGetValue(agentName, out Level lvl))
                     {
-                        case "alpha":
-                            // GameManager.Instance.agentName = "Alpha";
-                            // GameManager.Instance.difficulty = 1;
+                        if (lvl.id == GameManager.Instance.CurrentLevel.id)
+                        {
                             typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select alpha",
-                                    "Already selected Alpha agent."
-                                }, false, true);
-                            break;
-                        case "bravo":
-                            // GameManager.Instance.agentName = "Bravo";
-                            // GameManager.Instance.difficulty = 2;
+                            {
+                                "> agent:select " + agentName,
+                                "Agent " + agentName + " is already selected"
+                            }, false, true, charactersPerSecond);
+                            return;
+                        }
+                        else if (lvl.isUnlocked)
+                        {
                             typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select bravo",
-                                    "Error: Agent is inoperable"
-                                }, false, true);
-                            break;
-                        case "echo":
-                            // GameManager.Instance.agentName = "Echo";
-                            // GameManager.Instance.difficulty = 3;
+                            {
+                                "> agent:select " + agentName,
+                                "Agent " + agentName + " has been selected"
+                            }, false, true, charactersPerSecond);
+                            GameManager.Instance.CurrentLevel = lvl;
+                            return;
+                        }
+                        else
+                        {
                             typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select echo",
-                                    "Error: Agent is currently inactive"
-                                }, false, true);
-                            break;
-                        case "romeo":
-                            // GameManager.Instance.agentName = "Romeo";
-                            // GameManager.Instance.difficulty = 4;
-                            typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select romeo",
-                                    "Error: Agent is currently inactive"
-                                }, false, true);
-                            break;
-                        default:
-                            typeWriter.StartTypeWriter(new List<string>()
-                                {
-                                    "> agent:select",
-                                    "Usage: agent:select <agent>"
-                                }, false, true);
-                            break;
+                            {
+                                "> agent:select " + agentName,
+                                "Agent " + agentName + " is currently inactive! Complete level using agent " + lvl.requiredId + " first."
+                            }, false, true, charactersPerSecond);
+                            return;
+                        }
                     }
-                } 
+                    else
+                    {
+                        typeWriter.StartTypeWriter(new List<string>()
+                        {
+                            "> agent:select " + agentName,
+                            "Agent " + agentName + " does not exist"
+                        }, false, true, charactersPerSecond);
+                        return;
+                    }
+                }
             }
         };
 
-        typeWriter.StartTypeWriter(new List<string>() { "Type 'Help' for commands." }, false, true);
+        // We just came from a level
+        if (GameManager.Instance.exitedLevel)
+        {
+
+        }
+        else
+        {
+            typeWriter.StartTypeWriter(new List<string>() { "Type 'Help' for commands." }, false, true, charactersPerSecond);
+        }
     }
 
     void Update()
     {
+        cmdLine.text = @"C:\ > " + inputBuffer + (showCaret ? "|" : "");
+
         if (cmdDisabled)
             return;
 
@@ -308,7 +314,7 @@ public class Menu : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            if (cmdLine.text.Length <= 6)
+            if (inputBuffer.Length <= 0)
             {
                 if (typeWriter.IsTyping())
                     typeWriter.SkipAll();
@@ -316,30 +322,30 @@ public class Menu : MonoBehaviour
                 return;
             }
 
-            string cmd = cmdLine.text.Trim().ToLower()[6..];
+            string cmd = inputBuffer.ToLower();
             List<string> argsList = new List<string>(cmd.Split(' '));
 
             if (argsList.Count != 0 && cmds.ContainsKey(argsList[0]))
             {
                 typeWriter.ClearTypeWriter();
-                typeWriter.StartTypeWriter(new List<string>() { cmdLine.text }, false, true);
+                typeWriter.StartTypeWriter(new List<string>() { @"C:\ > " + inputBuffer }, false, true, charactersPerSecond);
                 cmds[argsList[0]].Invoke(argsList);
             }
             else
             {
-                typeWriter.StartTypeWriter(new List<string>() { "Command not recognized. Use the 'Help' command for a list of commands" }, false, true);
+                typeWriter.StartTypeWriter(new List<string>() { "Command not recognized. Use the 'Help' command for a list of commands" }, false, true, charactersPerSecond);
             }
 
-            cmdLine.text = @"C:\ > ";
+            inputBuffer = "";
         }
 
-        if (Input.GetKey(KeyCode.Backspace) && cmdLine.text.Length > 6)
+        if (Input.GetKey(KeyCode.Backspace) && inputBuffer.Length > 0)
         {
             backspaceTimer -= Time.deltaTime;
 
             if (backspaceTimer <= 0f)
             {
-                cmdLine.text = cmdLine.text.Substring(0, cmdLine.text.Length - 1);
+                inputBuffer = inputBuffer.Substring(0, inputBuffer.Length - 1);
                 backspaceTimer = backspaceDelay;
             }
         }
@@ -352,8 +358,10 @@ public class Menu : MonoBehaviour
         {
             if (!char.IsControl(c))
             {
-                if (cmdLine.text.Length <= 31)
-                    cmdLine.text += c;
+                if (inputBuffer.Length <= 31)
+                {
+                    inputBuffer += c;
+                }
             }
         }
     }
@@ -374,5 +382,14 @@ public class Menu : MonoBehaviour
 
         menuBGM.release();
         GameManager.Instance.LoadGame();
+    }
+
+    private IEnumerator BlinkCaret()
+    {
+        while (true)
+        {
+            showCaret = !showCaret;
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 }

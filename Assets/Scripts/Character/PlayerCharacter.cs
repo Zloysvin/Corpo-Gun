@@ -348,6 +348,8 @@ public class PlayerCharacter : MonoBehaviour, ICharacterController
         {
             motor.BaseVelocity = Vector3.zero;
         }
+
+        _lastFootStepPosition = position;
     }
 
     public Vector3 GetPosition()

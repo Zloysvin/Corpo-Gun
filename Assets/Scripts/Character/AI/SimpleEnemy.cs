@@ -59,6 +59,7 @@ public class SimpleChasingEnemy : Entity
 
     protected override void onDeath()
     {
+        // Level Manager should handle spawning and therefor can link events itself
         GameObject.FindGameObjectsWithTag("LevelManager")[0].GetComponent<LevelManager>().OnEnemyKilled();
         Destroy(gameObject);
     }
