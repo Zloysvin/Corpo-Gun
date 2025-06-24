@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - LevelManager
+  - PlayerTrigger
   layers:
   - Default
   - TransparentFX

@@ -82,7 +82,7 @@ public class Player : Entity
         stanceVignette.UpdateVignette(deltaTime, state.Stance);
     }
 
-    void Teleport(Vector3 position)
+    public void Teleport(Vector3 position)
     {
         playerCharacter.SetPosition(position);
     }

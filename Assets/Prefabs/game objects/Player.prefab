@@ -503,7 +503,6 @@ GameObject:
   - component: {fileID: 1269560832719500041}
   - component: {fileID: 7939914391694906440}
   - component: {fileID: 4437943134996084612}
-  - component: {fileID: 9126353577030093216}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -695,29 +694,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gunSelector: {fileID: 4684845577091717351}
---- !u!136 &9126353577030093216
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4680193503526112407}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.3
-  m_Height: 1.7
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.89, z: 0}
 --- !u!1 &5490674170251087708
 GameObject:
   m_ObjectHideFlags: 0
@@ -826,9 +802,10 @@ GameObject:
   - component: {fileID: 6423971136777544685}
   - component: {fileID: 650285795903542901}
   - component: {fileID: 479131566253297452}
+  - component: {fileID: 5383936069354108095}
   m_Layer: 0
   m_Name: Character
-  m_TagString: Untagged
+  m_TagString: PlayerTrigger
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -897,7 +874,7 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.35
-  m_Height: 1.4
+  m_Height: 1.5
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &650285795903542901
@@ -914,7 +891,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Capsule: {fileID: 6423971136777544685}
   CapsuleRadius: 0.35
-  CapsuleHeight: 1.4
+  CapsuleHeight: 1.5
   CapsuleYOffset: 1
   CapsulePhysicsMaterial: {fileID: 0}
   GroundDetectionExtraDistance: 0
@@ -973,11 +950,34 @@ MonoBehaviour:
   jumpSpeed: 11
   jumpSustainGravity: 0.6
   gravity: -50
-  standHeight: 1.4
-  crouchHeight: 0.8
+  standHeight: 1.5
+  crouchHeight: 1
   crouchHeightResponse: 4
   standCameraTargetHeight: 0.9
   crouchCameraTargetHeight: 0.7
+--- !u!136 &5383936069354108095
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8177493359172640337}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Height: 1.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.06, z: 0}
 --- !u!1 &8481991229141564811
 GameObject:
   m_ObjectHideFlags: 0
