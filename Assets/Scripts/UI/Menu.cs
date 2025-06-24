@@ -265,6 +265,7 @@ public class Menu : MonoBehaviour
                                 "> agent:select " + agentName,
                                 "Agent " + agentName + " has been selected"
                             }, false, true, charactersPerSecond);
+                            GameManager.Instance.CurrentLevel = lvl;
                             return;
                         }
                         else

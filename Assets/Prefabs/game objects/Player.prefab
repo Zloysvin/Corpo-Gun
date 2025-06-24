@@ -874,7 +874,7 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.35
-  m_Height: 1.5
+  m_Height: 1.45
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &650285795903542901
@@ -891,7 +891,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Capsule: {fileID: 6423971136777544685}
   CapsuleRadius: 0.35
-  CapsuleHeight: 1.5
+  CapsuleHeight: 1.45
   CapsuleYOffset: 1
   CapsulePhysicsMaterial: {fileID: 0}
   GroundDetectionExtraDistance: 0
@@ -931,8 +931,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3dd72eff9fe5ade4886911a776e6e0a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allowJump: 1
-  allowHoldJump: 1
+  allowJump: 0
+  allowHoldJump: 0
   allowCrouch: 1
   allowCoyoteBefore: 1
   allowCoyoteAfter: 1
@@ -950,10 +950,10 @@ MonoBehaviour:
   jumpSpeed: 11
   jumpSustainGravity: 0.6
   gravity: -50
-  standHeight: 1.5
+  standHeight: 1.45
   crouchHeight: 1
   crouchHeightResponse: 4
-  standCameraTargetHeight: 0.9
+  standCameraTargetHeight: 1
   crouchCameraTargetHeight: 0.7
 --- !u!136 &5383936069354108095
 CapsuleCollider:

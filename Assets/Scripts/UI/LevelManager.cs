@@ -77,7 +77,6 @@ public class LevelManager : MonoBehaviour
     {
         GameManager.Instance.CurrentGameState = GameState.Cutscene;
         StartCoroutine(HUD.Instance.FadeGroup(levelCanvasGroup, 0f, 1f, fadeDuration));
-        elevator.SetPlayerPosition(player, true);
         yield return StartCoroutine(elevator.ElevatorEvent(100f, 0f, GameState.Cutscene));
         bgm.stop(STOP_MODE.ALLOWFADEOUT);
         bgm.release();
